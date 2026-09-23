@@ -32,7 +32,7 @@ import {
 import { getSessao, logout, restaurarDadosDeExemplo } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import type { Sessao } from "@/types";
-import { Logo } from "./logo";
+import { Logo } from "@/components/brand/logo";
 import { SkipLink } from "./skip-link";
 
 type NavItem = { href: string; label: string; icon: LucideIcon };
@@ -49,7 +49,8 @@ function isActive(pathname: string, href: string) {
   return href === "/painel" ? pathname === href : pathname.startsWith(href);
 }
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+/** tone "dark": menu lateral azul-marinho (desktop); "light": menu do celular. */
+function NavLinks({ onNavigate, tone = "light" }: { onNavigate?: () => void; tone?: "light" | "dark" }) {
   const pathname = usePathname() ?? "";
   return (
     <ul className="space-y-1">
@@ -63,7 +64,13 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-md px-3 py-2.5 font-medium transition-colors",
-                active ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-accent"
+                tone === "dark"
+                  ? active
+                    ? "bg-white text-navy"
+                    : "text-white/90 hover:bg-white/10 hover:text-white"
+                  : active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground hover:bg-accent"
               )}
             >
               <Icon className="size-5" aria-hidden="true" />
@@ -76,7 +83,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function ResetDataButton() {
+function ResetDataButton({ tone = "light" }: { tone?: "light" | "dark" }) {
   const [open, setOpen] = React.useState(false);
 
   function handleReset() {
@@ -89,7 +96,14 @@ function ResetDataButton() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="w-full justify-start text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "w-full justify-start",
+            tone === "dark" ? "text-white/80 hover:bg-white/10 hover:text-white" : "text-muted-foreground"
+          )}
+        >
           <Database aria-hidden="true" />
           Restaurar dados de exemplo
         </Button>
@@ -148,15 +162,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">
       <SkipLink />
 
-      <aside className="hidden border-r bg-card lg:flex lg:flex-col" aria-label="Menu do painel">
-        <div className="flex h-16 items-center border-b px-5">
-          <Logo href="/painel" />
+      <aside className="hidden bg-navy text-white lg:flex lg:flex-col" aria-label="Menu do painel">
+        <div className="flex h-16 items-center px-5">
+          <Logo href="/painel" tone="inverse" />
         </div>
-        <nav aria-label="Seções do painel" className="flex-1 p-3">
-          <NavLinks />
+        <div className="brand-gradient mx-5 h-0.5 rounded-full" data-decorative aria-hidden="true" />
+        <nav aria-label="Seções do painel" className="flex-1 p-3 pt-5">
+          <NavLinks tone="dark" />
         </nav>
-        <div className="border-t p-3">
-          <ResetDataButton />
+        <div className="border-t border-white/15 p-3">
+          <ResetDataButton tone="dark" />
         </div>
       </aside>
 

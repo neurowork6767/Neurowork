@@ -16,6 +16,24 @@ TCC — Turma DS302: Hilario Feliciano Neto, Igor Gabriel Pasquali, Kaue Mezzomo
 | React Hook Form + Yup | Formulários e validação de campos |
 | Sonner | Mensagens de feedback (toast) |
 
+## Identidade visual
+
+A interface segue o Manual de Identidade Visual do NeuroWork:
+
+| Uso | Cor |
+|---|---|
+| Azul principal (logo, ícones, foco) | `#1E88E5` |
+| Verde (logo, destaques) | `#43A047` |
+| Cinza escuro (texto) | `#263238` |
+| Cinza claro (superfícies) | `#ECEFF1` |
+| Azul-marinho (menu, títulos, rodapé) | `#0D2A5C` |
+
+Tipografia: **Montserrat** nos títulos e **Roboto** no texto (via `next/font/google`).
+
+**Acessibilidade das cores:** o azul `#1E88E5` e o verde `#43A047` têm contraste de 3,7:1 e 3,3:1 com o branco, abaixo dos 4,5:1 exigidos pela WCAG para texto. Por isso, botões, links e textos usam tons mais escuros da mesma família (`#1565C0` e `#2E7D32`), e as cores originais ficam no logotipo, em ícones e em detalhes. Todos os tokens estão em `src/app/globals.css`.
+
+O símbolo do logo foi redesenhado em SVG (`src/components/brand/logo-symbol.tsx` e `public/brand/neurowork-simbolo.svg`). Se tiverem o arquivo vetorial original do logo, basta substituir esses dois arquivos.
+
 ## Como rodar
 
 Pré-requisito: Node.js 20 ou superior.
@@ -65,6 +83,7 @@ src/
 │       ├── avaliacao/          # Avaliação etapa por etapa
 │       └── concluido/          # Conclusão
 ├── components/
+│   ├── brand/                  # Logotipo (símbolo em SVG + versão horizontal)
 │   ├── ui/                     # Componentes base no padrão shadcn/ui
 │   ├── feedback/               # Estados: carregando, vazio, erro, sucesso + toast
 │   ├── forms/                  # Campo com rótulo/erro, máscara de entrada, alertas

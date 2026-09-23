@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { BrainCircuit } from "lucide-react";
 
 import { AccessibilityMenu } from "@/components/accessibility/accessibility-menu";
+import { Logo } from "@/components/brand/logo";
 import { SkipLink } from "@/components/layout/skip-link";
 
 export const metadata: Metadata = {
@@ -15,15 +15,7 @@ export default function CandidatoLayout({ children }: { children: React.ReactNod
       <SkipLink />
       <header className="border-b bg-card">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between gap-3 px-4">
-          <p className="flex items-center gap-2 font-bold text-navy">
-            <span
-              className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground"
-              aria-hidden="true"
-            >
-              <BrainCircuit className="size-5" />
-            </span>
-            NeuroWork
-          </p>
+          <Logo size="sm" />
           <AccessibilityMenu />
         </div>
       </header>

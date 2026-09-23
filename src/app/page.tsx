@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Check, ClipboardList, Link2, LineChart, ShieldCheck, Timer, UserCheck } from "lucide-react";
 
+import { Logo } from "@/components/brand/logo";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SkipLink } from "@/components/layout/skip-link";
 import { Badge } from "@/components/ui/badge";
@@ -41,25 +42,30 @@ export default function HomePage() {
       <SkipLink />
       <SiteHeader />
       <main id="conteudo">
-        <section className="border-b bg-card">
+        <section className="bg-navy text-white">
           <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-2 md:items-center md:py-24">
             <div className="space-y-6">
               <Badge variant="secondary">Recrutamento neuroinclusivo</Badge>
-              <h1 className="text-4xl font-bold leading-tight tracking-tight text-navy md:text-5xl">
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white md:text-5xl">
                 Processos seletivos acessíveis para pessoas neurodivergentes
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-white/85">
                 A NeuroWork ajuda sua empresa a criar vagas e avaliações adaptadas, com uma candidatura simples, clara e
                 sem pressão de tempo.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button asChild size="lg">
+                <Button asChild size="lg" className="bg-white text-navy hover:bg-white/90">
                   <Link href="/cadastro">
                     Criar conta da empresa
                     <ArrowRight aria-hidden="true" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white/70 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                >
                   <Link href="#como-funciona">Ver como funciona</Link>
                 </Button>
               </div>
@@ -93,6 +99,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        <div className="brand-gradient h-1" data-decorative aria-hidden="true" />
 
         <section aria-labelledby="titulo-beneficios" className="mx-auto max-w-6xl px-4 py-16">
           <h2 id="titulo-beneficios" className="mb-8 text-center text-3xl font-bold text-navy">
@@ -173,9 +180,12 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="border-t bg-card">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm text-muted-foreground sm:flex-row">
-          <p>NeuroWork — Trabalho de Conclusão de Curso, turma DS302.</p>
+      <footer className="bg-navy text-white">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-white/80 sm:flex-row">
+          <div className="flex flex-col items-center gap-1 sm:items-start">
+            <Logo tone="inverse" size="sm" />
+            <p>Trabalho de Conclusão de Curso — turma DS302.</p>
+          </div>
           <p>A plataforma não solicita nem registra diagnósticos.</p>
         </div>
       </footer>

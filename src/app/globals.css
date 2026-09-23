@@ -4,36 +4,46 @@
  * Tokens de cor no padrão do shadcn/ui.
  * Todas as combinações texto/fundo foram escolhidas com contraste mínimo de 4,5:1 (WCAG AA).
  */
+/*
+ * Paleta do Manual de Identidade Visual:
+ *   Azul principal #1E88E5 · Verde #43A047 · Cinza escuro #263238 · Cinza claro #ECEFF1 · Azul-marinho #0D2A5C
+ *
+ * O azul e o verde da marca têm contraste 3,7:1 e 3,3:1 com o branco, abaixo do mínimo de 4,5:1
+ * da WCAG para textos. Por isso, em textos e botões usamos tons mais escuros da MESMA família
+ * (#1565C0 e #2E7D32); as cores originais ficam no logotipo, em ícones e em detalhes decorativos.
+ */
 :root {
   --radius: 0.625rem;
 
-  --background: #f7f9fa;
-  --foreground: #14213d;
+  --background: #f4f6f8;
+  --foreground: #263238;
   --card: #ffffff;
-  --card-foreground: #14213d;
+  --card-foreground: #263238;
   --popover: #ffffff;
-  --popover-foreground: #14213d;
+  --popover-foreground: #263238;
 
-  --primary: #1e6b5c;
+  --primary: #1565c0;
   --primary-foreground: #ffffff;
-  --secondary: #e8f1ef;
-  --secondary-foreground: #14433a;
-  --muted: #eef2f5;
-  --muted-foreground: #4b5a6a;
-  --accent: #e8f1ef;
-  --accent-foreground: #14433a;
+  --secondary: #e3f2fd;
+  --secondary-foreground: #0d47a1;
+  --muted: #eceff1;
+  --muted-foreground: #455a64;
+  --accent: #e3f2fd;
+  --accent-foreground: #0d47a1;
 
-  --destructive: #b42318;
+  --destructive: #c62828;
   --destructive-foreground: #ffffff;
-  --success: #15803d;
+  --success: #2e7d32;
   --success-foreground: #ffffff;
-  --warning: #9a4a07;
+  --warning: #b45309;
 
-  --border: #dbe2e8;
-  --input: #c3ccd5;
-  --ring: #1e6b5c;
+  --border: #d5dce0;
+  --input: #78909c;
+  --ring: #1e88e5;
 
-  --navy: #1f3864;
+  --navy: #0d2a5c;
+  --brand-blue: #1e88e5;
+  --brand-green: #43a047;
 }
 
 /* Alto contraste (FE02): preto sobre branco e bordas fortes */
@@ -44,7 +54,7 @@ html[data-contrast="high"] {
   --card-foreground: #000000;
   --popover: #ffffff;
   --popover-foreground: #000000;
-  --primary: #003d33;
+  --primary: #0d3c8c;
   --secondary: #ffffff;
   --secondary-foreground: #000000;
   --muted: #ffffff;
@@ -58,6 +68,8 @@ html[data-contrast="high"] {
   --input: #000000;
   --ring: #000000;
   --navy: #000000;
+  --brand-blue: #0d3c8c;
+  --brand-green: #1b5e20;
 }
 
 /* Tamanho de fonte (FE02): o Tailwind usa rem, então tudo escala junto */
@@ -113,13 +125,17 @@ html[data-simplified="true"] *::after {
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-navy: var(--navy);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-green: var(--brand-green);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Tipografia da marca: Montserrat nos títulos e Roboto no texto corrido (carregadas em layout.tsx) */
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-heading: var(--font-montserrat), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
 }
 
 @layer base {
@@ -133,7 +149,18 @@ html[data-simplified="true"] *::after {
     @apply bg-background text-foreground antialiased;
     line-height: 1.6;
   }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+  }
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
+}
+
+/* Faixa com o degradê azul → verde do logotipo (uso decorativo) */
+@utility brand-gradient {
+  background-image: linear-gradient(90deg, var(--brand-blue), var(--brand-green));
 }
