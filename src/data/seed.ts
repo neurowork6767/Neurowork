@@ -1,0 +1,228 @@
+import type { Candidatura, Empresa, Vaga } from "@/types";
+
+/**
+ * Dados de exemplo usados na primeira versão (sem back-end).
+ * Credenciais da conta de demonstração: veja DEMO_LOGIN.
+ */
+
+export const DEMO_LOGIN = {
+  email: "demo@neurowork.com.br",
+  senha: "neurowork123",
+};
+
+const EMPRESA_DEMO_ID = "emp_demo";
+
+export const seedEmpresas: Empresa[] = [
+  {
+    id: EMPRESA_DEMO_ID,
+    nome: "Aurora Tecnologia",
+    cnpj: "11.222.333/0001-81",
+    email: DEMO_LOGIN.email,
+    telefone: "(11) 98765-4321",
+    responsavel: "Marina Costa",
+    plano: "pro",
+    criadaEm: "2026-08-01T12:00:00.000Z",
+  },
+];
+
+export const seedVagas: Vaga[] = [
+  {
+    id: "vaga_dev_front",
+    empresaId: EMPRESA_DEMO_ID,
+    slug: "desenvolvedor-front-end-junior-a1b2",
+    titulo: "Desenvolvedor(a) Front-end Júnior",
+    descricao:
+      "Você vai construir telas web com React e TypeScript, junto de uma equipe que valoriza comunicação clara e tarefas bem definidas.",
+    requisitos: "Conhecimentos básicos de HTML, CSS e JavaScript. Vontade de aprender React.",
+    modalidade: "remoto",
+    local: "Remoto (Brasil)",
+    faixaSalarial: "R$ 3.500,00",
+    adaptacoes: ["Avaliação sem limite de tempo", "Instruções escritas e em áudio", "Horário flexível"],
+    status: "aberta",
+    criadaEm: "2026-09-02T12:00:00.000Z",
+    etapas: [
+      {
+        id: "etp_1",
+        titulo: "Sobre você",
+        instrucoes: "Responda com calma. Não existe resposta certa ou errada nesta etapa.",
+        perguntas: [
+          {
+            id: "prg_1",
+            enunciado: "Conte sobre um projeto (da escola, pessoal ou de trabalho) de que você se orgulha.",
+            tipo: "dissertativa",
+            opcoes: [],
+          },
+          {
+            id: "prg_2",
+            enunciado: "Como você prefere receber instruções de trabalho?",
+            tipo: "multipla_escolha",
+            opcoes: ["Por escrito", "Em conversa", "Por vídeo ou áudio", "Tanto faz"],
+          },
+        ],
+      },
+      {
+        id: "etp_2",
+        titulo: "Conhecimentos técnicos",
+        instrucoes: "Você pode pesquisar se quiser. Queremos entender como você pensa.",
+        perguntas: [
+          {
+            id: "prg_3",
+            enunciado: "Qual tag HTML é usada para criar um link?",
+            tipo: "multipla_escolha",
+            opcoes: ["<a>", "<link>", "<href>", "<url>"],
+          },
+          {
+            id: "prg_4",
+            enunciado: "Explique, com suas palavras, o que é um componente em React.",
+            tipo: "dissertativa",
+            opcoes: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vaga_analista_dados",
+    empresaId: EMPRESA_DEMO_ID,
+    slug: "analista-de-dados-c3d4",
+    titulo: "Analista de Dados",
+    descricao: "Organizar e analisar dados de vendas para apoiar decisões da equipe comercial.",
+    requisitos: "Excel ou Planilhas Google. SQL básico é um diferencial.",
+    modalidade: "hibrido",
+    local: "São Paulo – SP",
+    faixaSalarial: "R$ 4.800,00",
+    adaptacoes: ["Perguntas enviadas com antecedência", "Ambiente de trabalho silencioso"],
+    status: "aberta",
+    criadaEm: "2026-09-10T12:00:00.000Z",
+    etapas: [
+      {
+        id: "etp_3",
+        titulo: "Análise de um caso",
+        instrucoes: "Leia a situação e responda do seu jeito. Sem limite de tempo.",
+        perguntas: [
+          {
+            id: "prg_5",
+            enunciado: "As vendas caíram 10% em um mês. Que dados você olharia primeiro para entender o motivo?",
+            tipo: "dissertativa",
+            opcoes: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "vaga_suporte",
+    empresaId: EMPRESA_DEMO_ID,
+    slug: "assistente-de-suporte-e5f6",
+    titulo: "Assistente de Suporte ao Cliente",
+    descricao: "Atendimento a clientes por chat e e-mail, com roteiros de atendimento definidos.",
+    requisitos: "Boa escrita em português.",
+    modalidade: "remoto",
+    local: "Remoto (Brasil)",
+    faixaSalarial: "",
+    adaptacoes: ["Entrevista por texto ou vídeo, à escolha"],
+    status: "encerrada",
+    criadaEm: "2026-07-15T12:00:00.000Z",
+    etapas: [],
+  },
+];
+
+export const seedCandidaturas: Candidatura[] = [
+  {
+    id: "cand_1",
+    vagaId: "vaga_dev_front",
+    nome: "Lucas Almeida",
+    email: "lucas.almeida@email.com",
+    telefone: "(41) 99876-5432",
+    cidade: "Curitiba – PR",
+    curriculo: { nome: "curriculo-lucas.pdf", tamanho: 182_000 },
+    portfolio: null,
+    portfolioLink: "https://github.com/exemplo-lucas",
+    adaptacoes: "Prefiro receber as instruções por escrito.",
+    consentimentoLgpd: true,
+    status: "em_analise",
+    respostas: {
+      prg_1: "Fiz um site para a feira de ciências da escola, com HTML e CSS.",
+      prg_2: "Por escrito",
+      prg_3: "<a>",
+      prg_4: "É uma parte da tela que pode ser reutilizada, como um botão.",
+    },
+    avaliacaoConcluida: true,
+    enviadaEm: "2026-09-12T15:30:00.000Z",
+  },
+  {
+    id: "cand_2",
+    vagaId: "vaga_dev_front",
+    nome: "Beatriz Souza",
+    email: "bia.souza@email.com",
+    telefone: "(11) 97654-3210",
+    cidade: "São Paulo – SP",
+    curriculo: { nome: "beatriz-souza-cv.pdf", tamanho: 240_000 },
+    portfolio: { nome: "portfolio-beatriz.pdf", tamanho: 1_300_000 },
+    portfolioLink: "",
+    adaptacoes: "",
+    consentimentoLgpd: true,
+    status: "aprovado",
+    respostas: {
+      prg_1: "Um aplicativo de lista de tarefas que uso no dia a dia.",
+      prg_2: "Por vídeo ou áudio",
+      prg_3: "<a>",
+      prg_4: "Uma função que retorna uma parte da interface.",
+    },
+    avaliacaoConcluida: true,
+    enviadaEm: "2026-09-13T10:05:00.000Z",
+  },
+  {
+    id: "cand_3",
+    vagaId: "vaga_dev_front",
+    nome: "Rafael Lima",
+    email: "rafael.lima@email.com",
+    telefone: "(51) 99123-4567",
+    cidade: "Porto Alegre – RS",
+    curriculo: { nome: "rafael-lima.pdf", tamanho: 150_000 },
+    portfolio: null,
+    portfolioLink: "",
+    adaptacoes: "Preciso de pausas curtas entre as etapas.",
+    consentimentoLgpd: true,
+    status: "nova",
+    respostas: { prg_1: "Um bot para o Discord da minha turma." },
+    avaliacaoConcluida: false,
+    enviadaEm: "2026-09-20T18:40:00.000Z",
+  },
+  {
+    id: "cand_4",
+    vagaId: "vaga_analista_dados",
+    nome: "Camila Rocha",
+    email: "camila.rocha@email.com",
+    telefone: "(31) 98888-7777",
+    cidade: "Belo Horizonte – MG",
+    curriculo: { nome: "camila-rocha-curriculo.pdf", tamanho: 210_000 },
+    portfolio: null,
+    portfolioLink: "",
+    adaptacoes: "",
+    consentimentoLgpd: true,
+    status: "nova",
+    respostas: {
+      prg_5: "Olharia vendas por região, por produto e se houve mudança de preço no período.",
+    },
+    avaliacaoConcluida: true,
+    enviadaEm: "2026-09-21T09:15:00.000Z",
+  },
+  {
+    id: "cand_5",
+    vagaId: "vaga_suporte",
+    nome: "Diego Martins",
+    email: "diego.martins@email.com",
+    telefone: "(21) 97777-6666",
+    cidade: "Rio de Janeiro – RJ",
+    curriculo: { nome: "diego-martins.pdf", tamanho: 120_000 },
+    portfolio: null,
+    portfolioLink: "",
+    adaptacoes: "",
+    consentimentoLgpd: true,
+    status: "reprovado",
+    respostas: {},
+    avaliacaoConcluida: true,
+    enviadaEm: "2026-07-20T14:00:00.000Z",
+  },
+];
