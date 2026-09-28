@@ -1,14 +1,30 @@
+import type { AjusteId } from "./ajustes";
+
 /**
  * Guarda, só nesta aba do navegador (sessionStorage), o progresso do candidato:
- * qual candidatura ele enviou e o rascunho das respostas da avaliação.
- * Assim ele não perde as respostas ao navegar entre as etapas ou recarregar a página.
+ * a candidatura enviada, os ajustes escolhidos e o rascunho das respostas.
+ * Assim ele não perde nada ao navegar entre as telas ou recarregar a página.
+ *
+ * A condição escolhida no atalho (TEA, TDAH…) NÃO é guardada: só os ajustes.
  */
 
-type CandidateProgress = {
+export type CandidateProgress = {
   candidaturaId: string;
   avaliacaoConcluida: boolean;
   rascunho: Record<string, string>;
-  etapaAtual: number;
+  /** Posição atual na avaliação (pergunta ou etapa, conforme o modo) */
+  posicao: number;
+  ajustes: AjusteId[];
+  /** O candidato já passou pela tela de ajustes */
+  ajustesDefinidos: boolean;
+};
+
+const PADRAO: Omit<CandidateProgress, "candidaturaId"> = {
+  avaliacaoConcluida: false,
+  rascunho: {},
+  posicao: 0,
+  ajustes: [],
+  ajustesDefinidos: false,
 };
 
 const key = (slug: string) => `neurowork:candidato:${slug}`;
@@ -17,7 +33,10 @@ export function readCandidateProgress(slug: string): CandidateProgress | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.sessionStorage.getItem(key(slug));
-    return raw ? (JSON.parse(raw) as CandidateProgress) : null;
+    if (!raw) return null;
+    const salvo = JSON.parse(raw) as Partial<CandidateProgress>;
+    if (!salvo.candidaturaId) return null;
+    return { ...PADRAO, ...salvo, candidaturaId: salvo.candidaturaId };
   } catch {
     return null;
   }
@@ -35,4 +54,8 @@ export function updateCandidateProgress(slug: string, changes: Partial<Candidate
   const current = readCandidateProgress(slug);
   if (!current) return;
   writeCandidateProgress(slug, { ...current, ...changes });
+}
+
+export function novoProgresso(candidaturaId: string, avaliacaoConcluida: boolean): CandidateProgress {
+  return { ...PADRAO, candidaturaId, avaliacaoConcluida };
 }

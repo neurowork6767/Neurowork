@@ -135,6 +135,43 @@ export function PerguntaEditor({
           </Button>
         </fieldset>
       )}
+
+      <details className="rounded-lg border bg-card p-3" open={Boolean(pergunta.orientacao || pergunta.exemplo)}>
+        <summary className="cursor-pointer font-medium">
+          Explicação para quem usa o ajuste “passo a passo” (opcional)
+        </summary>
+        <div className="mt-3 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Aparece para candidatos que pedem a pergunta explicada. Diga de forma direta o que você quer saber, sem
+            duplo sentido. A pergunta continua a mesma para todos.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor={`${baseId}-orientacao`}>O que a empresa quer saber</Label>
+            <Textarea
+              id={`${baseId}-orientacao`}
+              rows={3}
+              value={pergunta.orientacao}
+              aria-invalid={Boolean(errors[`${path}.orientacao`])}
+              onChange={(e) => onChange({ ...pergunta, orientacao: e.target.value })}
+              placeholder={
+                "Ex.: Responda nesta ordem:\n1. O nome do projeto.\n2. O que você fez.\nTamanho: 3 a 6 frases."
+              }
+            />
+            {errors[`${path}.orientacao`] && <FieldError>{errors[`${path}.orientacao`]}</FieldError>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`${baseId}-exemplo`}>Exemplo de resposta</Label>
+            <Textarea
+              id={`${baseId}-exemplo`}
+              rows={2}
+              value={pergunta.exemplo}
+              aria-invalid={Boolean(errors[`${path}.exemplo`])}
+              onChange={(e) => onChange({ ...pergunta, exemplo: e.target.value })}
+            />
+            {errors[`${path}.exemplo`] && <FieldError>{errors[`${path}.exemplo`]}</FieldError>}
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

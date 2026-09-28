@@ -65,7 +65,10 @@ export default function VagaPublicaPage() {
           ) : (
             <>
               Você já começou sua candidatura.{" "}
-              <Link href={`/vaga/${slug}/avaliacao`} className="font-semibold text-primary underline">
+              <Link
+                href={`/vaga/${slug}/${progresso.ajustesDefinidos ? "avaliacao" : "ajustes"}`}
+                className="font-semibold text-primary underline"
+              >
                 Continuar a avaliação
               </Link>
             </>
@@ -126,7 +129,8 @@ export default function VagaPublicaPage() {
           </ol>
           <p className="mt-4 flex items-center gap-2 rounded-lg bg-secondary p-3 text-secondary-foreground">
             <Clock className="size-4 shrink-0" aria-hidden="true" />
-            Não existe limite de tempo. Você pode voltar e revisar as respostas antes de enviar.
+            Não existe limite de tempo. Antes de começar, você escolhe como prefere fazer a avaliação: uma pergunta por
+            tela, texto maior, perguntas lidas em voz alta, responder falando e outros ajustes.
           </p>
         </CardContent>
       </Card>

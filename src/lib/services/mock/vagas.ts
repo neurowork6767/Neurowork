@@ -1,10 +1,7 @@
 import { createId, slugify } from "@/lib/utils";
-import type { Empresa, Etapa, Vaga, VagaInput, VagaStatus } from "@/types";
-import { delay, readDb, requireSession, ServiceError, writeDb } from "./storage";
-
-export type VagaComResumo = Vaga & { totalCandidaturas: number };
-
-export type VagaPublica = Vaga & { empresaNome: string };
+import type { Etapa, Vaga, VagaInput, VagaStatus } from "@/types";
+import { comResumo, ServiceError, type VagaComResumo } from "../shared";
+import { delay, readDb, requireSession, writeDb } from "./storage";
 
 function findVagaDaEmpresa(vagas: Vaga[], id: string, empresaId: string) {
   const vaga = vagas.find((v) => v.id === id && v.empresaId === empresaId);
@@ -16,14 +13,10 @@ export async function listarVagas(): Promise<VagaComResumo[]> {
   await delay();
   const { empresaId } = requireSession();
   const db = readDb();
-
-  return db.vagas
-    .filter((v) => v.empresaId === empresaId)
-    .sort((a, b) => b.criadaEm.localeCompare(a.criadaEm))
-    .map((vaga) => ({
-      ...vaga,
-      totalCandidaturas: db.candidaturas.filter((c) => c.vagaId === vaga.id).length,
-    }));
+  return comResumo(
+    db.vagas.filter((v) => v.empresaId === empresaId),
+    db.candidaturas
+  );
 }
 
 export async function obterVaga(id: string): Promise<Vaga> {
@@ -32,27 +25,25 @@ export async function obterVaga(id: string): Promise<Vaga> {
   return findVagaDaEmpresa(readDb().vagas, id, empresaId);
 }
 
-/** Usada na página pública do candidato (FE16): não exige sessão. */
-export async function obterVagaPublica(slug: string): Promise<VagaPublica> {
+/** Página pública do candidato (FE16): não exige sessão. */
+export async function obterVagaPublica(slug: string): Promise<Vaga> {
   await delay(500);
-  const db = readDb();
-  const vaga = db.vagas.find((v) => v.slug === slug);
+  const vaga = readDb().vagas.find((v) => v.slug === slug);
   if (!vaga) throw new ServiceError("Este link de vaga não existe. Confira se ele foi copiado por completo.");
   if (vaga.status === "encerrada") throw new ServiceError("Esta vaga foi encerrada e não recebe novas candidaturas.");
-
-  const empresa = db.empresas.find((e: Empresa) => e.id === vaga.empresaId);
-  return { ...vaga, empresaNome: empresa?.nome ?? "Empresa" };
+  return vaga;
 }
 
 export async function criarVaga(input: VagaInput): Promise<Vaga> {
   await delay(700);
-  const { empresaId } = requireSession();
+  const { empresaId, nome } = requireSession();
   const db = readDb();
 
   const vaga: Vaga = {
     ...input,
     id: createId("vaga"),
     empresaId,
+    empresaNome: nome,
     slug: `${slugify(input.titulo)}-${Math.random().toString(36).slice(2, 6)}`,
     status: "aberta",
     etapas: [],
@@ -69,7 +60,6 @@ export async function atualizarVaga(id: string, input: VagaInput): Promise<Vaga>
   const { empresaId } = requireSession();
   const db = readDb();
   const vaga = findVagaDaEmpresa(db.vagas, id, empresaId);
-
   Object.assign(vaga, input);
   writeDb(db);
   return vaga;
@@ -80,7 +70,6 @@ export async function alterarStatusVaga(id: string, status: VagaStatus): Promise
   const { empresaId } = requireSession();
   const db = readDb();
   const vaga = findVagaDaEmpresa(db.vagas, id, empresaId);
-
   vaga.status = status;
   writeDb(db);
   return vaga;
@@ -92,13 +81,7 @@ export async function salvarEtapas(id: string, etapas: Etapa[]): Promise<Vaga> {
   const { empresaId } = requireSession();
   const db = readDb();
   const vaga = findVagaDaEmpresa(db.vagas, id, empresaId);
-
   vaga.etapas = etapas;
   writeDb(db);
   return vaga;
-}
-
-export function getLinkDaVaga(slug: string) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/vaga/${slug}`;
 }

@@ -20,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useService } from "@/hooks/use-service";
-import { writeCandidateProgress } from "@/lib/candidate-session";
+import { novoProgresso, writeCandidateProgress } from "@/lib/candidate-session";
 import { enviarCandidatura, obterVagaPublica } from "@/lib/services";
 import { formatFileSize } from "@/lib/utils";
 import { CAMPOS_POR_ETAPA, candidaturaSchema, type CandidaturaFormValues } from "@/lib/validations/candidatura";
@@ -100,15 +100,11 @@ export default function CandidaturaPage() {
         consentimentoLgpd: values.consentimentoLgpd,
       });
 
-      writeCandidateProgress(slug, {
-        candidaturaId: candidatura.id,
-        avaliacaoConcluida: candidatura.avaliacaoConcluida,
-        rascunho: {},
-        etapaAtual: 0,
-      });
+      writeCandidateProgress(slug, novoProgresso(candidatura.id, candidatura.avaliacaoConcluida));
 
       toast.success("Dados enviados!");
-      router.push(vaga.etapas.length > 0 ? `/vaga/${slug}/avaliacao` : `/vaga/${slug}/concluido`);
+      // Com avaliação, o candidato escolhe antes os ajustes de como quer fazê-la
+      router.push(vaga.etapas.length > 0 ? `/vaga/${slug}/ajustes` : `/vaga/${slug}/concluido`);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Não foi possível enviar. Tente novamente.";
       setServerError(message);

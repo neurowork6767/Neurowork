@@ -1,24 +1,16 @@
 import { DEMO_LOGIN } from "@/data/seed";
 import { createId } from "@/lib/utils";
 import type { Empresa, Sessao } from "@/types";
-import { delay, readDb, readSession, ServiceError, writeDb, writeSession } from "./storage";
-
-export type CadastroEmpresaInput = {
-  nome: string;
-  cnpj: string;
-  responsavel: string;
-  email: string;
-  telefone: string;
-  senha: string;
-};
+import { ServiceError, type CadastroEmpresaInput } from "../shared";
+import { delay, readDb, readSession, writeDb, writeSession } from "./storage";
 
 function toSessao(empresa: Empresa): Sessao {
   return { empresaId: empresa.id, nome: empresa.nome, email: empresa.email };
 }
 
 /**
- * Login simulado. A senha só é conferida na conta de demonstração: nesta versão
- * nenhuma senha é armazenada. A autenticação real será feita pelo Firebase Authentication.
+ * Login simulado. A senha só é conferida na conta de demonstração: no modo
+ * demonstração nenhuma senha é armazenada.
  */
 export async function login(email: string, senha: string): Promise<Sessao> {
   await delay(700);
@@ -65,16 +57,18 @@ export async function cadastrarEmpresa(input: CadastroEmpresaInput): Promise<Ses
   return sessao;
 }
 
-/** Simula o envio do e-mail de recuperação. Por segurança, a resposta é a mesma exista ou não a conta. */
+/** Simula o envio do e-mail de recuperação. A resposta é a mesma exista ou não a conta. */
 export async function recuperarSenha(email: string): Promise<void> {
   await delay(700);
   void email;
 }
 
-export function logout() {
+export async function logout(): Promise<void> {
   writeSession(null);
 }
 
-export function getSessao(): Sessao | null {
-  return readSession();
+/** Informa a sessão atual. No modo demonstração ela é lida uma vez do navegador. */
+export function observarSessao(callback: (sessao: Sessao | null) => void): () => void {
+  callback(readSession());
+  return () => {};
 }

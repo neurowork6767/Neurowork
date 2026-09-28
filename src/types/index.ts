@@ -26,6 +26,10 @@ export type Pergunta = {
   enunciado: string;
   tipo: TipoPergunta;
   opcoes: string[];
+  /** Explicação direta do que a empresa quer saber (mostrada no ajuste "passo a passo") */
+  orientacao: string;
+  /** Exemplo de resposta (opcional) */
+  exemplo: string;
 };
 
 export type Etapa = {
@@ -38,6 +42,8 @@ export type Etapa = {
 export type Vaga = {
   id: string;
   empresaId: string;
+  /** Copiado da empresa para a página pública da vaga não precisar ler dados da empresa */
+  empresaNome: string;
   slug: string;
   titulo: string;
   descricao: string;
@@ -61,6 +67,8 @@ export type ArquivoInfo = {
 export type Candidatura = {
   id: string;
   vagaId: string;
+  /** Copiado da vaga: permite à regra de segurança verificar o dono sem consultas extras */
+  empresaId: string;
   nome: string;
   email: string;
   telefone: string;
@@ -74,6 +82,11 @@ export type Candidatura = {
   /** Respostas da avaliação, indexadas pelo id da pergunta */
   respostas: Record<string, string>;
   avaliacaoConcluida: boolean;
+  /**
+   * Ajustes da avaliação que o PRÓPRIO candidato decidiu mostrar à empresa.
+   * Nunca guardamos a condição (TEA, TDAH…), apenas os ajustes.
+   */
+  ajustesCompartilhados: string[];
   enviadaEm: string;
 };
 
@@ -96,7 +109,7 @@ export type Sessao = {
 /** Dados enviados pelo candidato ao criar a candidatura (FE17) */
 export type NovaCandidatura = Omit<
   Candidatura,
-  "id" | "vagaId" | "status" | "respostas" | "avaliacaoConcluida" | "enviadaEm"
+  "id" | "vagaId" | "empresaId" | "status" | "respostas" | "avaliacaoConcluida" | "ajustesCompartilhados" | "enviadaEm"
 >;
 
 /** Dados do formulário de vaga (FE08) */

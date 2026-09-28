@@ -5,6 +5,8 @@ import type { Etapa } from "@/types";
 const perguntaSchema = yup.object({
   enunciado: yup.string().trim().required("Escreva a pergunta."),
   tipo: yup.string().oneOf(["dissertativa", "multipla_escolha"]).required(),
+  orientacao: yup.string().max(600, "Use no máximo 600 caracteres."),
+  exemplo: yup.string().max(600, "Use no máximo 600 caracteres."),
   opcoes: yup
     .array()
     .of(yup.string().trim().required("Preencha ou remova esta opção."))

@@ -1,6 +1,13 @@
-# NeuroWork — Front-end (primeira versão)
+# NeuroWork
 
-Plataforma web de recrutamento neuroinclusivo. Esta é a **primeira versão do front-end**: todas as telas do backlog (FE01–FE19) navegáveis, com **dados de exemplo** e sem back-end. A integração com o Firebase (autenticação, Firestore, Storage) fica para as próximas etapas.
+Plataforma web de recrutamento neuroinclusivo. Todas as telas do backlog (FE01–FE19), avaliação adaptada a cada candidato e banco de dados **Cloud Firestore** com **Firebase Authentication**.
+
+O sistema roda de dois jeitos:
+
+| Modo | Quando | Dados |
+|---|---|---|
+| **Firebase** | Com as chaves no arquivo `.env.local` | Firestore + Authentication (dados reais, compartilhados) |
+| **Demonstração** | Sem `.env.local` | Dados de exemplo salvos no navegador (bom para apresentar sem internet) |
 
 TCC — Turma DS302: Hilario Feliciano Neto, Igor Gabriel Pasquali, Kaue Mezzomo Mazzonetto e Pedro Luan Chaikoski.
 
@@ -15,6 +22,9 @@ TCC — Turma DS302: Hilario Feliciano Neto, Igor Gabriel Pasquali, Kaue Mezzomo
 | lucide-react | Ícones |
 | React Hook Form + Yup | Formulários e validação de campos |
 | Sonner | Mensagens de feedback (toast) |
+| Firebase Authentication | Login das empresas (e-mail e senha) e login anônimo dos candidatos |
+| Cloud Firestore | Banco de dados, protegido por regras de segurança (`firestore.rules`) |
+| Web Speech API (navegador) | Ler perguntas em voz alta e responder falando |
 
 ## Identidade visual
 
@@ -45,7 +55,7 @@ npm run dev
 
 Abra http://localhost:3000.
 
-**Conta de demonstração:** `demo@neurowork.com.br` / `neurowork123` (a tela de login tem um botão que preenche os dados).
+**Conta de demonstração (só no modo demonstração):** `demo@neurowork.com.br` / `neurowork123` (a tela de login tem um botão que preenche os dados).
 
 Outros comandos:
 
@@ -55,16 +65,57 @@ npm run lint       # ESLint
 npm run typecheck  # só a checagem do TypeScript
 ```
 
+## Configurar o Firebase (banco de dados)
+
+Sem esta parte, o sistema funciona no modo demonstração. Para usar o banco real:
+
+1. **Crie o projeto:** acesse https://console.firebase.google.com, clique em **Adicionar projeto**, dê o nome `neurowork` e conclua (o Google Analytics pode ficar desligado). O plano gratuito (Spark) é suficiente.
+2. **Registre o app da Web:** na página do projeto, clique no ícone **`</>`**, dê um apelido (ex.: `neurowork-web`) e clique em **Registrar app**. Aparece um bloco `firebaseConfig` com as chaves; deixe-o aberto.
+3. **Crie o arquivo `.env.local`:** na pasta do projeto, copie o `.env.example` para `.env.local` e preencha cada linha com o valor correspondente do `firebaseConfig` (`apiKey` → `NEXT_PUBLIC_FIREBASE_API_KEY`, e assim por diante).
+4. **Ative o login:** no menu **Criação → Authentication → Começar → Método de login**, ative **E-mail/senha** (empresas) e **Anônimo** (candidatos, que não criam conta).
+5. **Crie o banco:** em **Criação → Firestore Database → Criar banco de dados**, escolha o local `southamerica-east1 (São Paulo)` e comece no **modo de produção**.
+6. **Publique as regras de segurança:** no Firestore, aba **Regras**, apague o conteúdo, cole todo o arquivo `firestore.rules` deste projeto e clique em **Publicar**.
+7. **Reinicie o projeto** (`Ctrl + C` e `npm run dev`). O login de demonstração some e o sistema passa a usar o Firebase. Crie a conta da empresa em **Criar conta**.
+
+> As chaves do `.env.local` identificam o projeto e ficam visíveis no navegador; isso é normal no Firebase. Quem protege os dados são as **regras de segurança**. O `.env.local` não vai para o GitHub (está no `.gitignore`).
+
+### Como os dados ficam no Firestore
+
+| Coleção | Documento | Quem lê | Quem altera |
+|---|---|---|---|
+| `empresas` | Um por empresa (id = id do usuário) | A própria empresa | A própria empresa (CNPJ e e-mail bloqueados) |
+| `vagas` | Um por vaga, com as etapas e perguntas dentro | Qualquer pessoa, se a vaga estiver aberta; a empresa dona, sempre | Só a empresa dona |
+| `candidaturas` | Uma por candidatura | A empresa da vaga e o próprio candidato | Candidato: respostas até enviar. Empresa: só o status |
+
+O candidato recebe um **login anônimo** automático: não cria conta nem senha, mas só ele consegue continuar a própria avaliação. As regras também têm uma **lista fechada de campos** para a candidatura, então não é possível gravar diagnóstico ou qualquer dado extra, mesmo alterando o código do site.
+
+## Avaliação adaptada (diferencial de neuroinclusão)
+
+Depois de enviar os dados, o candidato escolhe **como prefere fazer a avaliação** (`/vaga/[slug]/ajustes`):
+
+| Ajuste | O que muda |
+|---|---|
+| Uma pergunta por tela | Modo foco, com progresso em blocos |
+| Botão de pausa | Tela calma de pausa; as respostas ficam salvas |
+| Pergunta explicada passo a passo | Mostra "o que a empresa quer saber", um exemplo e quantas perguntas faltam |
+| Texto maior e mais espaçado | Letras maiores, mais espaço e fundo creme |
+| Ler as perguntas em voz alta | Cada pergunta é lida quando aparece |
+| Responder falando | A fala vira texto (Chrome e Edge) |
+
+Há um **atalho opcional** (Autismo, TDAH, Dislexia) que só marca ajustes sugeridos. **A condição escolhida não é salva nem enviada:** fica apenas na memória daquela tela. O candidato pode, se quiser, mostrar à empresa **os nomes dos ajustes** que usou. Assim, o sistema não trata dado de saúde (dado sensível pela LGPD, art. 11) e evita discriminação. As perguntas são as mesmas para todos; muda só a forma de apresentar.
+
+Na montagem do processo seletivo, a empresa pode escrever, em cada pergunta, a explicação direta e um exemplo de resposta usados pelo ajuste "passo a passo".
+
 ## Roteiro de demonstração (fluxo principal)
 
 1. **Empresa:** entre com a conta de demonstração (ou crie uma em "Criar conta").
 2. **Vagas → Criar vaga:** preencha o formulário. Ao salvar, o link da vaga aparece para copiar.
 3. **Montar processo seletivo:** adicione etapas e perguntas; use "Ver como o candidato".
-4. **Candidato:** abra o link da vaga (de preferência em outra aba), candidate-se sem conta, anexe um PDF e responda à avaliação.
+4. **Candidato:** abra o link da vaga (de preferência em outra aba), candidate-se sem conta e anexe um PDF. Na tela de ajustes, escolha um atalho (ex.: TDAH), veja o exemplo em "Ver como vai ficar" e responda à avaliação.
 5. **Empresa:** em **Candidatos**, abra a candidatura, veja as respostas e altere o status.
 6. **Relatórios** e **Plano** (contratação simulada, sem cobrança).
 
-> Os dados ficam no `localStorage` do navegador. Para voltar ao estado inicial, use **"Restaurar dados de exemplo"** no menu do painel.
+> No modo demonstração, os dados ficam no `localStorage` do navegador. Para voltar ao estado inicial, use **"Restaurar dados de exemplo"** no menu do painel.
 
 ## Organização das pastas
 
@@ -82,7 +133,8 @@ src/
 │   ├── privacidade/            # Política de privacidade (LGPD)
 │   └── vaga/[slug]/            # Jornada do candidato (link público, sem conta)
 │       ├── candidatura/        # Formulário em etapas
-│       ├── avaliacao/          # Avaliação etapa por etapa
+│       ├── ajustes/            # Escolha de como fazer a avaliação
+│       ├── avaliacao/          # Avaliação adaptada aos ajustes
 │       └── concluido/          # Conclusão
 ├── components/
 │   ├── brand/                  # Logotipo (símbolo em SVG + versão horizontal)
@@ -94,6 +146,12 @@ src/
 │   ├── vagas/ processo/ candidatura/  # Componentes de cada funcionalidade
 ├── lib/
 │   ├── services/               # Camada de serviços: ÚNICO ponto de acesso aos dados
+│   │   ├── index.ts            # Escolhe Firebase ou modo demonstração
+│   │   ├── firebase/           # Implementação com Authentication + Firestore
+│   │   ├── mock/               # Implementação do modo demonstração
+│   │   └── shared.ts           # Tipos e cálculos usados pelas duas
+│   ├── firebase.ts             # Configuração do Firebase (lida do .env.local)
+│   ├── ajustes.ts              # Ajustes da avaliação e atalhos
 │   ├── validations/            # Schemas Yup dos formulários
 │   ├── masks.ts                # Máscaras de CNPJ, telefone e moeda + validação de CNPJ
 │   └── constants.ts, utils.ts
@@ -102,7 +160,7 @@ src/
 └── types/                      # Tipos do domínio (Empresa, Vaga, Candidatura…)
 ```
 
-**Decisão de arquitetura (RNF-09):** as telas nunca leem dados diretamente. Tudo passa por `src/lib/services`, que hoje usa dados de exemplo e o `localStorage`. Na próxima etapa, só essas funções serão reescritas para usar o Firebase, e as telas continuam iguais.
+**Decisão de arquitetura (RNF-09):** as telas nunca leem dados diretamente. Tudo passa por `src/lib/services`, que tem duas implementações com as mesmas funções (Firebase e demonstração). O TypeScript obriga as duas a terem exatamente a mesma "assinatura", então as telas funcionam igual nos dois modos.
 
 ## Histórias do backlog → telas
 
@@ -125,15 +183,15 @@ src/
 | FE15 Relatório | `/painel/relatorios` |
 | FE16 Página da vaga | `/vaga/[slug]` |
 | FE17 Candidatura | `/vaga/[slug]/candidatura` |
-| FE18 Avaliação | `/vaga/[slug]/avaliacao` |
+| FE18 Avaliação (adaptada) | `/vaga/[slug]/ajustes`, `/vaga/[slug]/avaliacao` |
 | FE19 Conclusão | `/vaga/[slug]/concluido` |
 | Complemento: dados da empresa | `/painel/empresa` |
 | Complemento: política de privacidade (LGPD) | `/privacidade` |
 
-## Limitações desta versão (previstas no escopo)
+## Limitações desta versão
 
-- Autenticação simulada: nenhuma senha é armazenada; só a conta de demonstração confere a senha.
-- Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados.
-- O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado.
-- Os dados ficam no navegador de quem está usando.
+- Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
+- O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
+- No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
+- As regras do Firestore não foram testadas no emulador; teste o fluxo completo depois de publicá-las.
 - A plataforma não solicita, não infere e não registra diagnósticos.

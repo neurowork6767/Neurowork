@@ -8,12 +8,14 @@ import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback/states";
 import { PageHeader } from "@/components/layout/page-header";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { CandidaturaStatusBadge } from "@/components/vagas/status-badges";
 import { useService } from "@/hooks/use-service";
+import { AJUSTE_LABEL } from "@/lib/ajustes";
 import { CANDIDATURA_STATUS_LABEL, STATUS_SELECIONAVEIS } from "@/lib/constants";
 import { alterarStatusCandidatura, obterCandidatura } from "@/lib/services";
 import { formatDate, formatFileSize } from "@/lib/utils";
@@ -140,6 +142,23 @@ export default function CandidatoDetalhePage() {
                   <ExternalLink className="size-4" aria-hidden="true" />
                   <span className="sr-only">(abre em nova aba)</span>
                 </a>
+              )}
+
+              {candidatura.ajustesCompartilhados.length > 0 && (
+                <div className="space-y-2 rounded-lg border p-4">
+                  <p className="font-semibold">Ajustes que o candidato usou na avaliação</p>
+                  <ul className="flex flex-wrap gap-2">
+                    {candidatura.ajustesCompartilhados.map((ajuste) => (
+                      <li key={ajuste}>
+                        <Badge variant="info">{AJUSTE_LABEL[ajuste] ?? ajuste}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-sm text-muted-foreground">
+                    O candidato escolheu compartilhar estes ajustes. Considere-os também na entrevista. A NeuroWork
+                    nunca mostra condição ou diagnóstico.
+                  </p>
+                </div>
               )}
 
               {candidatura.adaptacoes && (

@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getSessao, logout, restaurarDadosDeExemplo } from "@/lib/services";
+import { logout, modoDemonstracao, observarSessao, restaurarDadosDeExemplo } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import type { Sessao } from "@/types";
 import { Logo } from "@/components/brand/logo";
@@ -140,20 +140,26 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = React.useState(true);
   const [menuOpen, setMenuOpen] = React.useState(false);
 
+  // Proteção de rota: sem empresa logada, volta para o login
   React.useEffect(() => {
-    const current = getSessao();
-    if (!current) {
-      router.replace("/login");
-      return;
-    }
-    setSessao(current);
-    setChecking(false);
+    return observarSessao((atual) => {
+      if (!atual) {
+        router.replace("/login");
+        return;
+      }
+      setSessao(atual);
+      setChecking(false);
+    });
   }, [router]);
 
-  function handleLogout() {
-    logout();
-    toast.success("Você saiu da sua conta.");
-    router.push("/login");
+  async function handleLogout() {
+    try {
+      await logout();
+      toast.success("Você saiu da sua conta.");
+      router.push("/login");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível sair.");
+    }
   }
 
   if (checking || !sessao) {
@@ -172,9 +178,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <nav aria-label="Seções do painel" className="flex-1 p-3 pt-5">
           <NavLinks tone="dark" />
         </nav>
-        <div className="border-t border-white/15 p-3">
-          <ResetDataButton tone="dark" />
-        </div>
+        <div className="border-t border-white/15 p-3">{modoDemonstracao && <ResetDataButton tone="dark" />}</div>
       </aside>
 
       <div className="flex min-w-0 flex-col">
@@ -195,7 +199,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <nav aria-label="Seções do painel" className="flex-1">
                   <NavLinks onNavigate={() => setMenuOpen(false)} />
                 </nav>
-                <ResetDataButton />
+                {modoDemonstracao && <ResetDataButton />}
               </DialogContent>
             </Dialog>
             <div className="lg:hidden">

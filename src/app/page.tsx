@@ -13,8 +13,8 @@ import { formatCurrency } from "@/lib/utils";
 const BENEFICIOS = [
   {
     icon: ClipboardList,
-    title: "Avaliações adaptadas",
-    text: "Monte etapas com perguntas claras, sem cronômetro e com instruções em texto e áudio.",
+    title: "Avaliação que se adapta a cada pessoa",
+    text: "O candidato escolhe como quer responder: uma pergunta por tela, pausas, texto maior, perguntas explicadas passo a passo, leitura em voz alta ou resposta falada.",
   },
   {
     icon: UserCheck,

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DEMO_LOGIN } from "@/data/seed";
-import { login } from "@/lib/services";
+import { login, modoDemonstracao } from "@/lib/services";
 import { loginSchema, type LoginValues } from "@/lib/validations/auth";
 
 /** Login da empresa (FE05) */
@@ -59,15 +59,17 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <CardContent className="space-y-5">
-          <FormAlert variant="info">
-            <p className="font-medium">Conta de demonstração</p>
-            <p>
-              E-mail: {DEMO_LOGIN.email} · Senha: {DEMO_LOGIN.senha}
-            </p>
-            <Button type="button" variant="link" className="h-auto p-0" onClick={fillDemo}>
-              Preencher com os dados de exemplo
-            </Button>
-          </FormAlert>
+          {modoDemonstracao && (
+            <FormAlert variant="info">
+              <p className="font-medium">Conta de demonstração</p>
+              <p>
+                E-mail: {DEMO_LOGIN.email} · Senha: {DEMO_LOGIN.senha}
+              </p>
+              <Button type="button" variant="link" className="h-auto p-0" onClick={fillDemo}>
+                Preencher com os dados de exemplo
+              </Button>
+            </FormAlert>
+          )}
 
           {serverError && <FormAlert>{serverError}</FormAlert>}
 

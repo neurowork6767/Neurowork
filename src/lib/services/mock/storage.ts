@@ -1,13 +1,12 @@
 import { seedCandidaturas, seedEmpresas, seedVagas } from "@/data/seed";
 import type { Candidatura, Empresa, Sessao, Vaga } from "@/types";
+import { ServiceError } from "../shared";
 
 /**
- * "Banco de dados" de exemplo da primeira versão.
+ * "Banco de dados" do modo demonstração (usado quando o Firebase não está configurado).
  *
  * Os dados ficam no localStorage do navegador para que a vaga criada pela empresa
  * apareça na página do candidato e a candidatura enviada apareça no painel.
- * Nas próximas etapas, somente os arquivos de serviço serão trocados por chamadas
- * ao Firestore — as telas continuam iguais, porque nunca acessam os dados direto.
  */
 
 type MockDatabase = {
@@ -16,15 +15,9 @@ type MockDatabase = {
   candidaturas: Candidatura[];
 };
 
-const DB_KEY = "neurowork:db:v1";
+// v2: inclui os campos de ajustes da avaliação; dados salvos na v1 são descartados
+const DB_KEY = "neurowork:db:v2";
 const SESSION_KEY = "neurowork:sessao";
-
-export class ServiceError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ServiceError";
-  }
-}
 
 function seed(): MockDatabase {
   return structuredClone({ empresas: seedEmpresas, vagas: seedVagas, candidaturas: seedCandidaturas });

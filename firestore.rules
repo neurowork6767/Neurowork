@@ -1,0 +1,112 @@
+rules_version = '2';
+
+// Regras de segurança do Cloud Firestore do NeuroWork.
+// Elas rodam no servidor do Google: mesmo que alguém altere o código do site,
+// não consegue ler ou mudar dados fora do que está permitido aqui.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    // Empresa = usuário com e-mail e senha (candidatos entram de forma anônima)
+    function empresaLogada() {
+      return logado() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+
+    function ehDono(empresaId) {
+      return empresaLogada() && request.auth.uid == empresaId;
+    }
+
+    // A alteração mexe apenas nos campos listados?
+    function alteraApenas(campos) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(campos);
+    }
+
+    function texto(valor, maximo) {
+      return valor is string && valor.size() <= maximo;
+    }
+
+    function vaga(vagaId) {
+      return get(/databases/$(database)/documents/vagas/$(vagaId)).data;
+    }
+
+    // ---------- Empresas: cada empresa só vê e altera o próprio cadastro ----------
+    match /empresas/{empresaId} {
+      allow read: if ehDono(empresaId);
+
+      allow create: if ehDono(empresaId)
+        && request.resource.data.keys().hasOnly(['nome', 'cnpj', 'email', 'telefone', 'responsavel', 'plano', 'criadaEm'])
+        && texto(request.resource.data.nome, 120)
+        && texto(request.resource.data.cnpj, 18)
+        && request.resource.data.plano == null;
+
+      // CNPJ e e-mail não podem ser trocados pelo site
+      allow update: if ehDono(empresaId)
+        && alteraApenas(['nome', 'responsavel', 'telefone', 'plano'])
+        && texto(request.resource.data.nome, 120)
+        && (request.resource.data.plano == null || request.resource.data.plano in ['basic', 'pro', 'enterprise']);
+
+      allow delete: if false;
+    }
+
+    // ---------- Vagas ----------
+    match /vagas/{vagaId} {
+      // Vaga aberta é pública (página do candidato); a empresa vê todas as suas
+      allow read: if resource.data.status == 'aberta' || ehDono(resource.data.empresaId);
+
+      allow create: if ehDono(request.resource.data.empresaId)
+        && request.resource.data.status == 'aberta'
+        && texto(request.resource.data.titulo, 80)
+        && request.resource.data.etapas.size() == 0;
+
+      allow update: if ehDono(resource.data.empresaId)
+        && request.resource.data.empresaId == resource.data.empresaId
+        && request.resource.data.slug == resource.data.slug
+        && request.resource.data.status in ['aberta', 'encerrada']
+        && texto(request.resource.data.titulo, 80);
+
+      allow delete: if false;
+    }
+
+    // ---------- Candidaturas ----------
+    match /candidaturas/{candidaturaId} {
+      // A empresa dona da vaga e o próprio candidato podem ler
+      allow read: if ehDono(resource.data.empresaId)
+        || (logado() && resource.data.candidatoUid == request.auth.uid);
+
+      // O candidato (anônimo) cria a candidatura só em vaga aberta e com o aceite da LGPD.
+      // A lista fechada de campos impede gravar qualquer dado extra, como diagnóstico.
+      allow create: if logado()
+        && request.resource.data.keys().hasOnly([
+          'vagaId', 'empresaId', 'candidatoUid', 'nome', 'email', 'telefone', 'cidade',
+          'curriculo', 'portfolio', 'portfolioLink', 'adaptacoes', 'consentimentoLgpd',
+          'status', 'respostas', 'avaliacaoConcluida', 'ajustesCompartilhados', 'enviadaEm'
+        ])
+        && request.resource.data.candidatoUid == request.auth.uid
+        && request.resource.data.status == 'nova'
+        && request.resource.data.consentimentoLgpd == true
+        && request.resource.data.ajustesCompartilhados.size() == 0
+        && texto(request.resource.data.nome, 120)
+        && texto(request.resource.data.adaptacoes, 500)
+        && vaga(request.resource.data.vagaId).status == 'aberta'
+        && vaga(request.resource.data.vagaId).empresaId == request.resource.data.empresaId;
+
+      // Empresa: só altera o status. Candidato: só responde, até enviar a avaliação.
+      allow update: if (
+          ehDono(resource.data.empresaId)
+          && alteraApenas(['status'])
+          && request.resource.data.status in ['nova', 'em_analise', 'aprovado', 'reprovado']
+        ) || (
+          logado()
+          && resource.data.candidatoUid == request.auth.uid
+          && resource.data.avaliacaoConcluida == false
+          && alteraApenas(['respostas', 'avaliacaoConcluida', 'ajustesCompartilhados'])
+          && request.resource.data.ajustesCompartilhados.size() <= 10
+        );
+
+      allow delete: if false;
+    }
+  }
+}

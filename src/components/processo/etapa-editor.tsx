@@ -36,6 +36,8 @@ export function EtapaEditor({ etapa, index, total, errors, onChange, onRemove, o
       enunciado: "",
       tipo,
       opcoes: tipo === "multipla_escolha" ? ["", ""] : [],
+      orientacao: "",
+      exemplo: "",
     };
     onChange({ ...etapa, perguntas: [...etapa.perguntas, nova] });
   }
