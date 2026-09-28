@@ -1,6 +1,6 @@
 import { PLANOS } from "@/data/planos";
 import type { Empresa, Plano, PlanoId } from "@/types";
-import { delay, readDb, requireSession, ServiceError, writeDb } from "./storage";
+import { delay, readDb, requireSession, ServiceError, writeDb, writeSession } from "./storage";
 
 export type ResumoPainel = {
   vagasAbertas: number;
@@ -15,6 +15,27 @@ export async function obterEmpresaAtual(): Promise<Empresa> {
   const { empresaId } = requireSession();
   const empresa = readDb().empresas.find((e) => e.id === empresaId);
   if (!empresa) throw new ServiceError("Empresa não encontrada.");
+  return empresa;
+}
+
+export type AtualizarEmpresaInput = Pick<Empresa, "nome" | "responsavel" | "telefone">;
+
+/**
+ * Atualiza os dados da empresa logada. CNPJ e e-mail não podem ser alterados aqui:
+ * na versão com back-end, essas mudanças exigirão verificação.
+ */
+export async function atualizarEmpresa(input: AtualizarEmpresaInput): Promise<Empresa> {
+  await delay(700);
+  const sessao = requireSession();
+  const db = readDb();
+  const empresa = db.empresas.find((e) => e.id === sessao.empresaId);
+  if (!empresa) throw new ServiceError("Empresa não encontrada.");
+
+  empresa.nome = input.nome;
+  empresa.responsavel = input.responsavel;
+  empresa.telefone = input.telefone;
+  writeDb(db);
+  writeSession({ ...sessao, nome: empresa.nome });
   return empresa;
 }
 

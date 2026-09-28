@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   Briefcase,
+  Building2,
   CreditCard,
   Database,
   LayoutDashboard,
@@ -43,6 +44,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/painel/candidatos", label: "Candidatos", icon: Users },
   { href: "/painel/plano", label: "Plano", icon: CreditCard },
   { href: "/painel/relatorios", label: "Relatórios", icon: BarChart3 },
+  { href: "/painel/empresa", label: "Minha empresa", icon: Building2 },
 ];
 
 function isActive(pathname: string, href: string) {

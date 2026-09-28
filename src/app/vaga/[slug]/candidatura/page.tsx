@@ -306,8 +306,18 @@ export default function CandidaturaPage() {
                       </label>
                       <p id="consentimento-texto" className="flex gap-1 text-sm text-muted-foreground">
                         <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                        Conforme a LGPD, seus dados serão usados só por {vaga.empresaNome} para esta vaga. Você pode
-                        pedir a exclusão quando quiser.
+                        <span>
+                          Conforme a LGPD, seus dados serão usados só por {vaga.empresaNome} para esta vaga. Você pode
+                          pedir a exclusão quando quiser.{" "}
+                          <Link
+                            href="/privacidade"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-primary underline"
+                          >
+                            Ler a política de privacidade (abre em nova aba)
+                          </Link>
+                        </span>
                       </p>
                     </div>
                   </div>

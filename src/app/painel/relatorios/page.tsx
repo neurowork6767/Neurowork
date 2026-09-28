@@ -35,7 +35,7 @@ function Relatorio({ vagaId }: { vagaId: string }) {
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Total de candidatos" value={data.totalCandidatos} icon={Users} />
-        <StatCard label="Avaliações concluídas" value={data.avaliacoesConcluidas} icon={CheckCircle2} />
+        <StatCard label="Avaliações concluídas" value={data.avaliacoesConcluidas} icon={CheckCircle2} tone="green" />
         <StatCard label="Taxa de conclusão" value={`${data.taxaConclusao}%`} icon={BarChart3} />
       </div>
 

@@ -77,7 +77,9 @@ src/
 │   │   ├── vagas/              # Lista, criar, detalhe, editar e processo seletivo
 │   │   ├── candidatos/         # Lista e detalhe do candidato
 │   │   ├── plano/              # Meu plano e checkout simulado
-│   │   └── relatorios/         # Relatório por vaga
+│   │   ├── relatorios/         # Relatório por vaga
+│   │   └── empresa/            # Dados da conta da empresa
+│   ├── privacidade/            # Política de privacidade (LGPD)
 │   └── vaga/[slug]/            # Jornada do candidato (link público, sem conta)
 │       ├── candidatura/        # Formulário em etapas
 │       ├── avaliacao/          # Avaliação etapa por etapa
@@ -125,6 +127,8 @@ src/
 | FE17 Candidatura | `/vaga/[slug]/candidatura` |
 | FE18 Avaliação | `/vaga/[slug]/avaliacao` |
 | FE19 Conclusão | `/vaga/[slug]/concluido` |
+| Complemento: dados da empresa | `/painel/empresa` |
+| Complemento: política de privacidade (LGPD) | `/privacidade` |
 
 ## Limitações desta versão (previstas no escopo)
 

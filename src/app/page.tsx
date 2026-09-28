@@ -186,7 +186,12 @@ export default function HomePage() {
             <Logo tone="inverse" size="sm" />
             <p>Trabalho de Conclusão de Curso — turma DS302.</p>
           </div>
-          <p>A plataforma não solicita nem registra diagnósticos.</p>
+          <div className="flex flex-col items-center gap-1 sm:items-end">
+            <p>A plataforma não solicita nem registra diagnósticos.</p>
+            <Link href="/privacidade" className="font-medium text-white underline underline-offset-4">
+              Política de privacidade
+            </Link>
+          </div>
         </div>
       </footer>
     </>
