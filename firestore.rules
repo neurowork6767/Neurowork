@@ -81,13 +81,14 @@ service cloud.firestore {
       allow create: if logado()
         && request.resource.data.keys().hasOnly([
           'vagaId', 'empresaId', 'candidatoUid', 'nome', 'email', 'telefone', 'cidade',
-          'curriculo', 'portfolio', 'portfolioLink', 'adaptacoes', 'consentimentoLgpd',
+          'curriculo', 'portfolio', 'certificados', 'portfolioLink', 'adaptacoes', 'consentimentoLgpd',
           'status', 'respostas', 'avaliacaoConcluida', 'ajustesCompartilhados', 'enviadaEm'
         ])
         && request.resource.data.candidatoUid == request.auth.uid
         && request.resource.data.status == 'nova'
         && request.resource.data.consentimentoLgpd == true
         && request.resource.data.ajustesCompartilhados.size() == 0
+        && request.resource.data.certificados.size() <= 5
         && texto(request.resource.data.nome, 120)
         && texto(request.resource.data.adaptacoes, 500)
         && vaga(request.resource.data.vagaId).status == 'aberta'
@@ -106,7 +107,9 @@ service cloud.firestore {
           && request.resource.data.ajustesCompartilhados.size() <= 10
         );
 
-      allow delete: if false;
+      // Direito de exclusão (LGPD): a empresa da vaga ou o próprio candidato podem apagar
+      allow delete: if ehDono(resource.data.empresaId)
+        || (logado() && resource.data.candidatoUid == request.auth.uid);
     }
   }
 }

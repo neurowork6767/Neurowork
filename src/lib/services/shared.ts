@@ -39,6 +39,14 @@ export type ResumoPainel = {
   taxaConclusao: number;
 };
 
+/** Cópia de segurança dos dados de uma empresa (RNF-08), baixada em JSON. */
+export type BackupEmpresa = {
+  geradoEm: string;
+  empresa: Empresa;
+  vagas: Vaga[];
+  candidaturas: Candidatura[];
+};
+
 export type RelatorioVaga = {
   vagaId: string;
   vagaTitulo: string;

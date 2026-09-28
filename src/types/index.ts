@@ -75,6 +75,7 @@ export type Candidatura = {
   cidade: string;
   curriculo: ArquivoInfo;
   portfolio: ArquivoInfo | null;
+  certificados: ArquivoInfo[];
   portfolioLink: string;
   adaptacoes: string;
   consentimentoLgpd: boolean;

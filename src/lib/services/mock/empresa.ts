@@ -1,5 +1,12 @@
 import type { Empresa, PlanoId } from "@/types";
-import { calcularResumo, obterPlano, ServiceError, type AtualizarEmpresaInput, type ResumoPainel } from "../shared";
+import {
+  calcularResumo,
+  obterPlano,
+  ServiceError,
+  type AtualizarEmpresaInput,
+  type BackupEmpresa,
+  type ResumoPainel,
+} from "../shared";
 import { delay, readDb, requireSession, writeDb, writeSession } from "./storage";
 
 export async function obterEmpresaAtual(): Promise<Empresa> {
@@ -47,4 +54,18 @@ export async function contratarPlanoSimulado(planoId: PlanoId): Promise<Empresa>
   empresa.plano = planoId;
   writeDb(db);
   return empresa;
+}
+
+export async function exportarDados(): Promise<BackupEmpresa> {
+  await delay(600);
+  const { empresaId } = requireSession();
+  const db = readDb();
+  const empresa = db.empresas.find((e) => e.id === empresaId);
+  if (!empresa) throw new ServiceError("Empresa não encontrada.");
+  return {
+    geradoEm: new Date().toISOString(),
+    empresa,
+    vagas: db.vagas.filter((v) => v.empresaId === empresaId),
+    candidaturas: db.candidaturas.filter((c) => c.empresaId === empresaId),
+  };
 }

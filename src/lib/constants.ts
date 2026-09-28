@@ -40,3 +40,5 @@ export const ADAPTACOES_SUGERIDAS = [
 
 export const MAX_FILE_SIZE_MB = 5;
 export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+export const MAX_CERTIFICADOS = 5;

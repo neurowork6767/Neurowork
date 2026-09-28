@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Pencil, Send, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { FileInput } from "@/components/candidatura/file-input";
+import { MultiFileInput } from "@/components/candidatura/multi-file-input";
 import { Stepper } from "@/components/candidatura/stepper";
 import { ErrorState, LoadingState } from "@/components/feedback/states";
 import { FieldError, FormField } from "@/components/forms/form-field";
@@ -21,11 +22,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useService } from "@/hooks/use-service";
 import { novoProgresso, writeCandidateProgress } from "@/lib/candidate-session";
+import { MAX_CERTIFICADOS } from "@/lib/constants";
 import { enviarCandidatura, obterVagaPublica } from "@/lib/services";
 import { formatFileSize } from "@/lib/utils";
 import { CAMPOS_POR_ETAPA, candidaturaSchema, type CandidaturaFormValues } from "@/lib/validations/candidatura";
 
 const ETAPAS = ["Seus dados", "Arquivos", "Revisão"];
+
+/** Erro de uma lista de arquivos: o da lista inteira (ex.: máximo) ou o do primeiro arquivo inválido. */
+function primeiroErro(erro: unknown): string | undefined {
+  if (!erro || typeof erro !== "object") return undefined;
+  if ("message" in erro && typeof erro.message === "string") return erro.message;
+  if (Array.isArray(erro)) return erro.map(primeiroErro).find(Boolean);
+  return undefined;
+}
 
 function ReviewItem({ label, value }: { label: string; value: React.ReactNode }) {
   return (
@@ -63,6 +73,7 @@ export default function CandidaturaPage() {
       email: "",
       telefone: "",
       cidade: "",
+      certificados: [],
       portfolioLink: "",
       adaptacoes: "",
       consentimentoLgpd: false,
@@ -95,6 +106,7 @@ export default function CandidaturaPage() {
         cidade: values.cidade,
         curriculo: { nome: values.curriculo.name, tamanho: values.curriculo.size },
         portfolio: values.portfolio ? { nome: values.portfolio.name, tamanho: values.portfolio.size } : null,
+        certificados: values.certificados.map((file) => ({ nome: file.name, tamanho: file.size })),
         portfolioLink: values.portfolioLink,
         adaptacoes: values.adaptacoes,
         consentimentoLgpd: values.consentimentoLgpd,
@@ -227,6 +239,28 @@ export default function CandidaturaPage() {
                   )}
                 </FormField>
                 <FormField
+                  id="certificados"
+                  label="Certificados (PDF)"
+                  error={primeiroErro(errors.certificados)}
+                  hint="Cursos, diplomas ou outros certificados."
+                >
+                  {(field) => (
+                    <Controller
+                      control={control}
+                      name="certificados"
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <MultiFileInput
+                          {...field}
+                          value={value}
+                          max={MAX_CERTIFICADOS}
+                          onChange={onChange}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                  )}
+                </FormField>
+                <FormField
                   id="portfolioLink"
                   label="Link do portfólio"
                   error={errors.portfolioLink?.message}
@@ -283,6 +317,10 @@ export default function CandidaturaPage() {
                       }
                     />
                     <ReviewItem label="Portfólio" value={valores.portfolio?.name} />
+                    <ReviewItem
+                      label="Certificados"
+                      value={(valores.certificados ?? []).map((file) => file.name).join(", ")}
+                    />
                     <ReviewItem label="Link do portfólio" value={valores.portfolioLink} />
                     <ReviewItem label="Adaptações" value={valores.adaptacoes} />
                   </dl>

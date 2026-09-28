@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Building2, Lock, Save } from "lucide-react";
+import { Building2, DatabaseBackup, Download, Lock, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { ErrorState, LoadingState } from "@/components/feedback/states";
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useService } from "@/hooks/use-service";
-import { atualizarEmpresa, obterEmpresaAtual, obterPlano } from "@/lib/services";
+import { atualizarEmpresa, exportarDados, obterEmpresaAtual, obterPlano } from "@/lib/services";
 import { formatDate } from "@/lib/utils";
 import { empresaSchema, type EmpresaFormValues } from "@/lib/validations/empresa";
 import type { Empresa } from "@/types";
@@ -117,6 +117,53 @@ function EmpresaForm({ empresa, onSaved }: { empresa: Empresa; onSaved: (empresa
   );
 }
 
+/** Backup dos dados da empresa em JSON (RNF-08). */
+function BackupCard() {
+  const [baixando, setBaixando] = React.useState(false);
+
+  async function baixar() {
+    setBaixando(true);
+    try {
+      const backup = await exportarDados();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `neurowork-backup-${backup.geradoEm.slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success(`Backup baixado: ${backup.vagas.length} vagas e ${backup.candidaturas.length} candidaturas.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível gerar o backup.");
+    } finally {
+      setBaixando(false);
+    }
+  }
+
+  return (
+    <Card className="h-fit">
+      <CardHeader>
+        <CardTitle as="h2" className="flex items-center gap-2">
+          <DatabaseBackup className="size-5 text-brand-blue" aria-hidden="true" />
+          Backup dos dados
+        </CardTitle>
+        <CardDescription>
+          Baixe uma cópia de todas as suas vagas e candidaturas. Recomendamos fazer isso toda semana.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button variant="outline" className="w-full" onClick={baixar} loading={baixando}>
+          {!baixando && <Download aria-hidden="true" />}
+          Baixar backup (JSON)
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">
+          O arquivo contém dados pessoais dos candidatos. Guarde em local seguro.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 /** Dados da conta da empresa (complemento ao FE05/FE06) */
 export default function EmpresaPage() {
   const { data: empresa, error, loading, reload, setData } = useService(obterEmpresaAtual);
@@ -133,31 +180,34 @@ export default function EmpresaPage() {
         <div className="lg:col-span-2">
           <EmpresaForm empresa={empresa} onSaved={(atualizada) => setData(() => atualizada)} />
         </div>
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle as="h2" className="flex items-center gap-2">
-              <Building2 className="size-5 text-brand-blue" aria-hidden="true" />
-              Sua conta
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-3">
-              <div>
-                <dt className="text-sm text-muted-foreground">Plano</dt>
-                <dd className="flex items-center gap-2">
-                  {plano ? <Badge variant="success">{plano.nome}</Badge> : <span>Nenhum plano ativo</span>}
-                  <Link href="/painel/plano" className="text-sm font-medium text-primary hover:underline">
-                    {plano ? "Ver plano" : "Escolher plano"}
-                  </Link>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm text-muted-foreground">Cliente desde</dt>
-                <dd>{formatDate(empresa.criadaEm)}</dd>
-              </div>
-            </dl>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle as="h2" className="flex items-center gap-2">
+                <Building2 className="size-5 text-brand-blue" aria-hidden="true" />
+                Sua conta
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="space-y-3">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Plano</dt>
+                  <dd className="flex items-center gap-2">
+                    {plano ? <Badge variant="success">{plano.nome}</Badge> : <span>Nenhum plano ativo</span>}
+                    <Link href="/painel/plano" className="text-sm font-medium text-primary hover:underline">
+                      {plano ? "Ver plano" : "Escolher plano"}
+                    </Link>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Cliente desde</dt>
+                  <dd>{formatDate(empresa.criadaEm)}</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+          <BackupCard />
+        </div>
       </div>
     </>
   );

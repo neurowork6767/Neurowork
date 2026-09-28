@@ -13,7 +13,7 @@ const SECOES = [
     titulo: "Quais dados coletamos",
     itens: [
       "Da empresa: nome, CNPJ, pessoa responsável, e-mail e telefone.",
-      "Do candidato: nome, e-mail, telefone, cidade, currículo e, se quiser, portfólio.",
+      "Do candidato: nome, e-mail, telefone, cidade, currículo e, se quiser, portfólio e certificados.",
       "Respostas às perguntas da avaliação da vaga.",
       "Se o candidato quiser, uma descrição das adaptações que o ajudam.",
     ],
@@ -31,6 +31,7 @@ const SECOES = [
       "Somente para o processo seletivo da vaga em que a pessoa se candidatou.",
       "A empresa da vaga é a única que vê a candidatura.",
       "Não vendemos nem compartilhamos dados com outras empresas.",
+      "Os ajustes escolhidos para a avaliação só são mostrados à empresa se o candidato permitir. A condição escolhida no atalho nunca é salva.",
     ],
   },
   {
@@ -38,7 +39,7 @@ const SECOES = [
     itens: [
       "Saber quais dados seus estão guardados.",
       "Corrigir dados incompletos ou errados.",
-      "Pedir a exclusão dos seus dados.",
+      "Excluir seus dados: logo após enviar, pelo botão “Excluir minha candidatura”; depois, pedindo à empresa da vaga, que exclui pelo painel.",
       "Retirar o consentimento a qualquer momento.",
     ],
   },

@@ -188,10 +188,42 @@ src/
 | Complemento: dados da empresa | `/painel/empresa` |
 | Complemento: política de privacidade (LGPD) | `/privacidade` |
 
+## Requisitos → onde estão atendidos
+
+| Requisito | Situação | Onde |
+|---|---|---|
+| RF-01 Cadastro de empresa | Atendido | `/cadastro` + Firebase Authentication + coleção `empresas` |
+| RF-02 Login da empresa | Atendido | `/login` |
+| RF-03 Cadastro de vagas | Atendido | `/painel/vagas/nova` |
+| RF-04 Processo seletivo personalizado | Atendido | `/painel/vagas/[id]/processo` |
+| RF-05 Link sem cadastro | Atendido | `job-link-card.tsx`, `/vaga/[slug]`, login anônimo |
+| RF-06 Perfil profissional | Parcial | `/vaga/[slug]/candidatura` (os arquivos são validados, mas não enviados) |
+| RF-07 Avaliação adaptada | Atendido | `/vaga/[slug]/ajustes` e `/vaga/[slug]/avaliacao` |
+| RF-08 Currículo, certificados e portfólio | Parcial | Campos prontos; falta o armazenamento dos arquivos |
+| RF-09 Gestão de candidatos | Atendido | `/painel/candidatos` |
+| RF-10 Avaliação de candidatos | Parcial | `/painel/candidatos/[id]` (respostas sim; abrir arquivos, não) |
+| RF-11 Alteração de status | Atendido | `/painel/candidatos/[id]` |
+| RF-12 Relatórios | Atendido | `/painel/relatorios` |
+| RF-13 Painel da empresa | Atendido | `/painel` |
+| RF-14 Assinatura de plano | Atendido (simulado) | `/painel/plano` |
+| RF-15 Processamento de pagamentos | Simulado | `/painel/plano/checkout/[plano]` |
+| RF-16 Gerenciamento de assinatura | Atendido | `/painel/plano`, `/painel/empresa` |
+| RNF-01 Responsividade | Atendido | Layout com Tailwind (testar no celular) |
+| RNF-02 Acessibilidade | Atendido | Botão Acessibilidade, ajustes da avaliação, WCAG AA |
+| RNF-03 Segurança | Atendido | Firebase Authentication + `firestore.rules` |
+| RNF-04 Senhas criptografadas | Atendido | Guardadas com hash pelo Firebase Authentication; nunca vão para o Firestore |
+| RNF-05 Carregamento até 3 s | A medir | Rodar o Lighthouse no Chrome e guardar o resultado |
+| RNF-06 Navegadores modernos | A testar | Chrome, Edge, Firefox e Safari ("responder falando" só no Chrome/Edge) |
+| RNF-07 Disponibilidade 24 h | A publicar | Publicar na Vercel (o Firebase já é disponível 24 h) |
+| RNF-08 Backup | Atendido (manual) | "Baixar backup (JSON)" em `/painel/empresa` |
+| RNF-09 Escalabilidade | Atendido | Camada de serviços e componentes reutilizáveis |
+| RNF-10 LGPD | Atendido | Consentimento, `/privacidade`, exclusão pela empresa e pelo candidato, nenhum diagnóstico salvo |
+
 ## Limitações desta versão
 
 - Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
 - O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
 - No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
 - As regras do Firestore não foram testadas no emulador; teste o fluxo completo depois de publicá-las.
+- O backup é manual (botão no painel). O backup automático do Firestore exige o plano pago.
 - A plataforma não solicita, não infere e não registra diagnósticos.

@@ -34,7 +34,29 @@ export async function alterarStatusCandidatura(id: string, status: CandidaturaSt
   return candidatura;
 }
 
+/** Exclui a candidatura e todos os dados do candidato (direito de exclusão da LGPD). */
+export async function excluirCandidatura(id: string): Promise<void> {
+  await delay(500);
+  const { empresaId } = requireSession();
+  const db = readDb();
+  const existe = db.candidaturas.some((c) => c.id === id && c.empresaId === empresaId);
+  if (!existe) throw new ServiceError("Candidatura não encontrada.");
+  db.candidaturas = db.candidaturas.filter((c) => c.id !== id);
+  writeDb(db);
+}
+
 /* ---------- Operações públicas, usadas pelo candidato (sem conta) ---------- */
+
+/** O próprio candidato apaga a candidatura que enviou nesta sessão. */
+export async function excluirMinhaCandidatura(candidaturaId: string): Promise<void> {
+  await delay(500);
+  const db = readDb();
+  if (!db.candidaturas.some((c) => c.id === candidaturaId)) {
+    throw new ServiceError("Candidatura não encontrada. Ela pode já ter sido excluída.");
+  }
+  db.candidaturas = db.candidaturas.filter((c) => c.id !== candidaturaId);
+  writeDb(db);
+}
 
 export async function enviarCandidatura(vagaId: string, dados: NovaCandidatura): Promise<Candidatura> {
   await delay(900);

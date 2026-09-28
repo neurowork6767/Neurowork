@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-import { MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "@/lib/constants";
+import { MAX_CERTIFICADOS, MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "@/lib/constants";
 import { onlyDigits } from "@/lib/masks";
 
 const pdfFile = (label: string) =>
@@ -30,6 +30,21 @@ export const candidaturaSchema = yup.object({
   cidade: yup.string().trim().required("Informe sua cidade."),
   curriculo: pdfFile("currículo").required("Anexe seu currículo em PDF."),
   portfolio: pdfFile("portfólio"),
+  certificados: yup
+    .array()
+    .of(
+      yup
+        .mixed<File>()
+        .required()
+        .test("tipo", "Os certificados precisam ser arquivos PDF.", (file) => !file || file.type === "application/pdf")
+        .test(
+          "tamanho",
+          `Cada certificado pode ter no máximo ${MAX_FILE_SIZE_MB} MB.`,
+          (file) => !file || file.size <= MAX_FILE_SIZE
+        )
+    )
+    .max(MAX_CERTIFICADOS, `Envie no máximo ${MAX_CERTIFICADOS} certificados.`)
+    .default([]),
   portfolioLink: yup.string().trim().url("Digite um link completo, começando com https://").default(""),
   adaptacoes: yup.string().trim().max(500, "Use no máximo 500 caracteres.").default(""),
   consentimentoLgpd: yup
@@ -43,6 +58,6 @@ export type CandidaturaFormValues = yup.InferType<typeof candidaturaSchema>;
 /** Campos validados em cada etapa do formulário */
 export const CAMPOS_POR_ETAPA: (keyof CandidaturaFormValues)[][] = [
   ["nome", "email", "telefone", "cidade"],
-  ["curriculo", "portfolio", "portfolioLink", "adaptacoes"],
+  ["curriculo", "portfolio", "certificados", "portfolioLink", "adaptacoes"],
   ["consentimentoLgpd"],
 ];

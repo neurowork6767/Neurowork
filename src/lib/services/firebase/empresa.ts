@@ -1,7 +1,14 @@
 import { collection, doc, getDoc, getDocs, query, updateDoc, where, writeBatch } from "firebase/firestore";
 
 import type { Candidatura, Empresa, PlanoId, Vaga } from "@/types";
-import { calcularResumo, obterPlano, ServiceError, type AtualizarEmpresaInput, type ResumoPainel } from "../shared";
+import {
+  calcularResumo,
+  obterPlano,
+  ServiceError,
+  type AtualizarEmpresaInput,
+  type BackupEmpresa,
+  type ResumoPainel,
+} from "../shared";
 import { COLECOES, empresaClient, executar, requireEmpresaUid } from "./client";
 import { comId } from "./mappers";
 
@@ -58,5 +65,28 @@ export async function contratarPlanoSimulado(planoId: PlanoId): Promise<Empresa>
     const ref = doc(empresaClient().db, COLECOES.empresas, uid);
     await updateDoc(ref, { plano: planoId });
     return comId<Empresa>(await getDoc(ref));
+  });
+}
+
+/**
+ * Backup dos dados da empresa (RNF-08). O backup automático do Firestore exige o plano pago;
+ * esta exportação é gratuita e pode ser feita pela empresa sempre que quiser.
+ */
+export async function exportarDados(): Promise<BackupEmpresa> {
+  return executar(async () => {
+    const uid = await requireEmpresaUid();
+    const { db } = empresaClient();
+    const [empresa, vagas, candidaturas] = await Promise.all([
+      getDoc(doc(db, COLECOES.empresas, uid)),
+      getDocs(query(collection(db, COLECOES.vagas), where("empresaId", "==", uid))),
+      getDocs(query(collection(db, COLECOES.candidaturas), where("empresaId", "==", uid))),
+    ]);
+    if (!empresa.exists()) throw new ServiceError("Empresa não encontrada.");
+    return {
+      geradoEm: new Date().toISOString(),
+      empresa: comId<Empresa>(empresa),
+      vagas: vagas.docs.map((d) => comId<Vaga>(d)),
+      candidaturas: candidaturas.docs.map((d) => comId<Candidatura>(d)),
+    };
   });
 }

@@ -59,3 +59,12 @@ export function updateCandidateProgress(slug: string, changes: Partial<Candidate
 export function novoProgresso(candidaturaId: string, avaliacaoConcluida: boolean): CandidateProgress {
   return { ...PADRAO, candidaturaId, avaliacaoConcluida };
 }
+
+/** Apaga o progresso guardado nesta aba (usado depois de excluir a candidatura). */
+export function removeCandidateProgress(slug: string) {
+  try {
+    window.sessionStorage.removeItem(key(slug));
+  } catch {
+    // nada a remover
+  }
+}

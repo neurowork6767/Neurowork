@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileText, Mail, MapPin, Phone } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, ExternalLink, FileText, Mail, MapPin, Phone, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback/states";
@@ -13,11 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/vagas/confirm-dialog";
 import { CandidaturaStatusBadge } from "@/components/vagas/status-badges";
 import { useService } from "@/hooks/use-service";
 import { AJUSTE_LABEL } from "@/lib/ajustes";
 import { CANDIDATURA_STATUS_LABEL, STATUS_SELECIONAVEIS } from "@/lib/constants";
-import { alterarStatusCandidatura, obterCandidatura } from "@/lib/services";
+import { alterarStatusCandidatura, excluirCandidatura, obterCandidatura } from "@/lib/services";
 import { formatDate, formatFileSize } from "@/lib/utils";
 import type { ArquivoInfo, CandidaturaStatus } from "@/types";
 
@@ -40,6 +41,18 @@ export default function CandidatoDetalhePage() {
   const { data: candidatura, error, loading, reload, setData } = useService(() => obterCandidatura(id), [id]);
   const [novoStatus, setNovoStatus] = React.useState<CandidaturaStatus>("em_analise");
   const [saving, setSaving] = React.useState(false);
+  const [excluirOpen, setExcluirOpen] = React.useState(false);
+  const router = useRouter();
+
+  async function handleExcluir() {
+    try {
+      await excluirCandidatura(id);
+      toast.success("Candidatura excluída.");
+      router.push("/painel/candidatos");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Não foi possível excluir.");
+    }
+  }
 
   React.useEffect(() => {
     if (candidatura) setNovoStatus(candidatura.status === "nova" ? "em_analise" : candidatura.status);
@@ -126,6 +139,9 @@ export default function CandidatoDetalhePage() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <Arquivo label="Currículo" arquivo={candidatura.curriculo} />
                 {candidatura.portfolio && <Arquivo label="Portfólio" arquivo={candidatura.portfolio} />}
+                {candidatura.certificados.map((certificado, i) => (
+                  <Arquivo key={`${certificado.nome}-${i}`} label={`Certificado ${i + 1}`} arquivo={certificado} />
+                ))}
               </div>
               <p className="text-xs text-muted-foreground">
                 Nesta versão os arquivos não são enviados; só o nome e o tamanho ficam registrados.
@@ -241,8 +257,32 @@ export default function CandidatoDetalhePage() {
               </form>
             </CardContent>
           </Card>
+
+          <Card className="mt-6 border-destructive/30">
+            <CardHeader>
+              <CardTitle as="h2">Excluir dados</CardTitle>
+              <CardDescription>
+                Use quando o candidato pedir a exclusão dos dados (LGPD). Não é possível desfazer.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="destructive" className="w-full" onClick={() => setExcluirOpen(true)}>
+                <Trash2 aria-hidden="true" />
+                Excluir candidatura
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
+      <ConfirmDialog
+        open={excluirOpen}
+        onOpenChange={setExcluirOpen}
+        title="Excluir esta candidatura?"
+        description={`Todos os dados de ${candidatura.nome} (contato, arquivos e respostas) serão apagados. Não é possível desfazer.`}
+        confirmLabel="Excluir definitivamente"
+        destructive
+        onConfirm={handleExcluir}
+      />
     </>
   );
 }
