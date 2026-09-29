@@ -64,7 +64,7 @@ export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps)
           Banco de perguntas NeuroWork
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col">
+      <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Banco de perguntas NeuroWork</DialogTitle>
           <DialogDescription>
@@ -88,8 +88,12 @@ export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps)
           ))}
         </div>
 
-        <fieldset className="-mx-1 mt-4 flex-1 space-y-2 overflow-y-auto px-1">
-          <legend className="sr-only">Perguntas disponíveis</legend>
+        {/* min-h-0 deixa a lista encolher e rolar dentro da janela, sem passar por cima dos botões */}
+        <div
+          role="group"
+          aria-label="Perguntas disponíveis"
+          className="-mx-1 mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-1"
+        >
           {lista.map((p) => {
             const id = `banco-${p.codigo}`;
             const marcada = selecionadas.includes(p.codigo);
@@ -116,9 +120,9 @@ export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps)
               </label>
             );
           })}
-        </fieldset>
+        </div>
 
-        <DialogFooter>
+        <DialogFooter className="mt-4 shrink-0 border-t pt-4">
           <DialogClose asChild>
             <Button type="button" variant="outline">
               Cancelar
