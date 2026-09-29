@@ -106,6 +106,8 @@ Há um **atalho opcional** (Autismo, TDAH, Dislexia) que só marca ajustes suger
 
 Na montagem do processo seletivo, a empresa pode escrever, em cada pergunta, a explicação direta e um exemplo de resposta usados pelo ajuste "passo a passo".
 
+**Banco de perguntas NeuroWork (RF-17):** a equipe oferece 16 modelos de perguntas, em 7 categorias, já escritos em linguagem clara e literal, com explicação e exemplo. A empresa escolhe quais usar, edita o texto ou cria as próprias perguntas. Os modelos ficam em `src/data/banco-perguntas.ts`.
+
 ## Roteiro de demonstração (fluxo principal)
 
 1. **Empresa:** entre com a conta de demonstração (ou crie uma em "Criar conta").
@@ -185,6 +187,7 @@ src/
 | FE17 Candidatura | `/vaga/[slug]/candidatura` |
 | FE18 Avaliação (adaptada) | `/vaga/[slug]/ajustes`, `/vaga/[slug]/avaliacao` |
 | FE19 Conclusão | `/vaga/[slug]/concluido` |
+| FE20 Banco de perguntas (RF-17) | `/painel/vagas/[id]/processo` |
 | Complemento: dados da empresa | `/painel/empresa` |
 | Complemento: política de privacidade (LGPD) | `/privacidade` |
 
@@ -208,6 +211,7 @@ src/
 | RF-14 Assinatura de plano | Atendido (simulado) | `/painel/plano` |
 | RF-15 Processamento de pagamentos | Simulado | `/painel/plano/checkout/[plano]` |
 | RF-16 Gerenciamento de assinatura | Atendido | `/painel/plano`, `/painel/empresa` |
+| RF-17 Banco de perguntas | Atendido | Botão "Banco de perguntas NeuroWork" em `/painel/vagas/[id]/processo` (`src/data/banco-perguntas.ts`) |
 | RNF-01 Responsividade | Atendido | Layout com Tailwind (testar no celular) |
 | RNF-02 Acessibilidade | Atendido | Botão Acessibilidade, ajustes da avaliação, WCAG AA |
 | RNF-03 Segurança | Atendido | Firebase Authentication + `firestore.rules` |

@@ -71,7 +71,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border bg-background p-6 text-foreground shadow-sm" data-decorative aria-hidden="true">
+            <div
+              className="rounded-2xl border bg-background p-6 text-foreground shadow-sm"
+              data-decorative
+              aria-hidden="true"
+            >
               <p className="mb-4 text-sm font-semibold text-muted-foreground">Prévia do painel</p>
               <div className="mb-4 grid grid-cols-3 gap-3">
                 {[

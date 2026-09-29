@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createId, moveItem } from "@/lib/utils";
 import type { Etapa, Pergunta, TipoPergunta } from "@/types";
+import { BancoPerguntasDialog } from "./banco-perguntas-dialog";
 import { PerguntaEditor } from "./pergunta-editor";
 
 type EtapaEditorProps = {
@@ -141,6 +142,9 @@ export function EtapaEditor({ etapa, index, total, errors, onChange, onRemove, o
               <ListChecks aria-hidden="true" />
               Pergunta de múltipla escolha
             </Button>
+            <BancoPerguntasDialog
+              onAdicionar={(novas) => onChange({ ...etapa, perguntas: [...etapa.perguntas, ...novas] })}
+            />
           </div>
         </div>
       </CardContent>
