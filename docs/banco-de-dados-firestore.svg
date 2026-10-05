@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1420" height="960" viewBox="0 0 1420 960" font-family="Arial, Helvetica, sans-serif">
+<defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>
+<rect width="1420" height="960" fill="#fff"/>
+<rect x="24" y="70" width="236" height="232" rx="10" fill="#fff" stroke="#555" stroke-width="1.4"/>
+<text x="142.0" y="98" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >Firebase Authentication</text>
+<text x="40" y="128" font-size="14" font-weight="normal" text-anchor="start" fill="#222" >Guarda as contas de acesso.</text>
+<text x="40" y="149" font-size="14" font-weight="normal" text-anchor="start" fill="#222" ></text>
+<text x="40" y="170" font-size="14" font-weight="bold" text-anchor="start" fill="#222" >Empresa: e-mail e senha</text>
+<text x="40" y="191" font-size="14" font-weight="normal" text-anchor="start" fill="#222" >(a senha fica só aqui,</text>
+<text x="40" y="212" font-size="14" font-weight="normal" text-anchor="start" fill="#222" >guardada com hash)</text>
+<text x="40" y="233" font-size="14" font-weight="normal" text-anchor="start" fill="#222" ></text>
+<text x="40" y="254" font-size="14" font-weight="bold" text-anchor="start" fill="#222" >Candidato: acesso anônimo</text>
+<text x="40" y="275" font-size="14" font-weight="normal" text-anchor="start" fill="#222" >(sem e-mail e sem senha)</text>
+<rect x="318" y="18" width="1088" height="928" rx="12" fill="none" stroke="#777" stroke-width="1.6"/>
+<text x="336" y="48" font-size="17" font-weight="bold" text-anchor="start" fill="#111" >Cloud Firestore — banco NoSQL de documentos (3 coleções)</text>
+<rect x="342" y="70" width="290" height="260" fill="#f7f7f7" stroke="#555" stroke-width="1.4" />
+<rect x="342" y="70" width="290" height="46" fill="#e2e2e2" stroke="#555" stroke-width="1.4" />
+<text x="487.0" y="91" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >empresas</text>
+<text x="487.0" y="109" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#444" >um documento por empresa</text>
+<text x="356.0" y="136" font-size="14.5" fill="#111"><tspan font-weight="bold">(id do documento)</tspan><tspan fill="#555">: uid</tspan></text>
+<text x="356.0" y="161" font-size="14.5" fill="#111"><tspan font-weight="normal">nome</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="186" font-size="14.5" fill="#111"><tspan font-weight="normal">cnpj</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="211" font-size="14.5" fill="#111"><tspan font-weight="normal">email</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="236" font-size="14.5" fill="#111"><tspan font-weight="normal">telefone</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="261" font-size="14.5" fill="#111"><tspan font-weight="normal">responsavel</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="286" font-size="14.5" fill="#111"><tspan font-weight="normal">plano</tspan><tspan fill="#555">: string | nulo</tspan></text>
+<text x="356.0" y="311" font-size="14.5" fill="#111"><tspan font-weight="normal">criadaEm</tspan><tspan fill="#555">: string (data)</tspan></text>
+<rect x="742" y="70" width="300" height="410" fill="#f7f7f7" stroke="#555" stroke-width="1.4" />
+<rect x="742" y="70" width="300" height="46" fill="#e2e2e2" stroke="#555" stroke-width="1.4" />
+<text x="892.0" y="91" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >vagas</text>
+<text x="892.0" y="109" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#444" >um documento por vaga</text>
+<text x="756.0" y="136" font-size="14.5" fill="#111"><tspan font-weight="bold">(id do documento)</tspan><tspan fill="#555">: gerado</tspan></text>
+<text x="756.0" y="161" font-size="14.5" fill="#111"><tspan font-weight="normal">empresaId</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="186" font-size="14.5" fill="#111"><tspan font-weight="normal">empresaNome</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="211" font-size="14.5" fill="#111"><tspan font-weight="normal">slug</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="236" font-size="14.5" fill="#111"><tspan font-weight="normal">titulo</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="261" font-size="14.5" fill="#111"><tspan font-weight="normal">descricao</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="286" font-size="14.5" fill="#111"><tspan font-weight="normal">requisitos</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="311" font-size="14.5" fill="#111"><tspan font-weight="normal">modalidade</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="336" font-size="14.5" fill="#111"><tspan font-weight="normal">local</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="361" font-size="14.5" fill="#111"><tspan font-weight="normal">faixaSalarial</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="386" font-size="14.5" fill="#111"><tspan font-weight="normal">adaptacoes</tspan><tspan fill="#555">: lista de string</tspan></text>
+<text x="756.0" y="411" font-size="14.5" fill="#111"><tspan font-weight="normal">status</tspan><tspan fill="#555">: string</tspan></text>
+<text x="756.0" y="436" font-size="14.5" fill="#111"><tspan font-weight="normal">criadaEm</tspan><tspan fill="#555">: string (data)</tspan></text>
+<text x="756.0" y="461" font-size="14.5" fill="#111"><tspan font-weight="normal">etapas</tspan><tspan fill="#555">: lista de mapas</tspan></text>
+<rect x="1076" y="58" width="326" height="466" rx="10" fill="#fbfbfb" stroke="#999" stroke-dasharray="4 4"/>
+<text x="1239.0" y="80" font-size="13" font-weight="normal" text-anchor="middle" fill="#444" font-style="italic">dentro do documento da vaga</text>
+<rect x="1086" y="94" width="306" height="160" fill="#f7f7f7" stroke="#555" stroke-width="1.4" stroke-dasharray="6 4"/>
+<rect x="1086" y="94" width="306" height="46" fill="#e2e2e2" stroke="#555" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="1239.0" y="115" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >Etapa</text>
+<text x="1239.0" y="133" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#444" >item da lista etapas</text>
+<text x="1100.0" y="160" font-size="14.5" fill="#111"><tspan font-weight="normal">id</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="185" font-size="14.5" fill="#111"><tspan font-weight="normal">titulo</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="210" font-size="14.5" fill="#111"><tspan font-weight="normal">instrucoes</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="235" font-size="14.5" fill="#111"><tspan font-weight="normal">perguntas</tspan><tspan fill="#555">: lista de mapas</tspan></text>
+<rect x="1086" y="300" width="306" height="210" fill="#f7f7f7" stroke="#555" stroke-width="1.4" stroke-dasharray="6 4"/>
+<rect x="1086" y="300" width="306" height="46" fill="#e2e2e2" stroke="#555" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text x="1239.0" y="321" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >Pergunta</text>
+<text x="1239.0" y="339" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#444" >item da lista perguntas</text>
+<text x="1100.0" y="366" font-size="14.5" fill="#111"><tspan font-weight="normal">id</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="391" font-size="14.5" fill="#111"><tspan font-weight="normal">enunciado</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="416" font-size="14.5" fill="#111"><tspan font-weight="normal">tipo</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="441" font-size="14.5" fill="#111"><tspan font-weight="normal">opcoes</tspan><tspan fill="#555">: lista de string</tspan></text>
+<text x="1100.0" y="466" font-size="14.5" fill="#111"><tspan font-weight="normal">orientacao</tspan><tspan fill="#555">: string</tspan></text>
+<text x="1100.0" y="491" font-size="14.5" fill="#111"><tspan font-weight="normal">exemplo</tspan><tspan fill="#555">: string</tspan></text>
+<rect x="342" y="590" width="1050" height="310" fill="#f7f7f7" stroke="#555" stroke-width="1.4" />
+<rect x="342" y="590" width="1050" height="46" fill="#e2e2e2" stroke="#555" stroke-width="1.4" />
+<text x="867.0" y="611" font-size="17" font-weight="bold" text-anchor="middle" fill="#111" >candidaturas</text>
+<text x="867.0" y="629" font-size="12.5" font-weight="normal" text-anchor="middle" fill="#444" >um documento por candidatura</text>
+<text x="356.0" y="656" font-size="14.5" fill="#111"><tspan font-weight="bold">(id do documento)</tspan><tspan fill="#555">: gerado</tspan></text>
+<text x="356.0" y="681" font-size="14.5" fill="#111"><tspan font-weight="normal">vagaId</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="706" font-size="14.5" fill="#111"><tspan font-weight="normal">empresaId</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="731" font-size="14.5" fill="#111"><tspan font-weight="normal">candidatoUid</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="756" font-size="14.5" fill="#111"><tspan font-weight="normal">nome</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="781" font-size="14.5" fill="#111"><tspan font-weight="normal">email</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="806" font-size="14.5" fill="#111"><tspan font-weight="normal">telefone</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="831" font-size="14.5" fill="#111"><tspan font-weight="normal">cidade</tspan><tspan fill="#555">: string</tspan></text>
+<text x="356.0" y="856" font-size="14.5" fill="#111"><tspan font-weight="normal">curriculo</tspan><tspan fill="#555">: mapa (nome, tamanho)</tspan></text>
+<text x="356.0" y="881" font-size="14.5" fill="#111"><tspan font-weight="normal">portfolio</tspan><tspan fill="#555">: mapa | nulo</tspan></text>
+<text x="881.0" y="656" font-size="14.5" fill="#111"><tspan font-weight="normal">certificados</tspan><tspan fill="#555">: lista de mapas (até 5)</tspan></text>
+<text x="881.0" y="681" font-size="14.5" fill="#111"><tspan font-weight="normal">portfolioLink</tspan><tspan fill="#555">: string</tspan></text>
+<text x="881.0" y="706" font-size="14.5" fill="#111"><tspan font-weight="normal">adaptacoes</tspan><tspan fill="#555">: string (até 500)</tspan></text>
+<text x="881.0" y="731" font-size="14.5" fill="#111"><tspan font-weight="normal">consentimentoLgpd</tspan><tspan fill="#555">: booleano</tspan></text>
+<text x="881.0" y="756" font-size="14.5" fill="#111"><tspan font-weight="normal">respostas</tspan><tspan fill="#555">: mapa (id da pergunta → texto)</tspan></text>
+<text x="881.0" y="781" font-size="14.5" fill="#111"><tspan font-weight="normal">avaliacaoConcluida</tspan><tspan fill="#555">: booleano</tspan></text>
+<text x="881.0" y="806" font-size="14.5" fill="#111"><tspan font-weight="normal">ajustesCompartilhados</tspan><tspan fill="#555">: lista de string</tspan></text>
+<text x="881.0" y="831" font-size="14.5" fill="#111"><tspan font-weight="normal">status</tspan><tspan fill="#555">: string</tspan></text>
+<text x="881.0" y="856" font-size="14.5" fill="#111"><tspan font-weight="normal">enviadaEm</tspan><tspan fill="#555">: string (data)</tspan></text>
+<path d="M260,165 H342" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<rect x="267.6" y="142" width="66.8" height="19" fill="#fff"/>
+<text x="301.0" y="156" font-size="13" font-weight="normal" text-anchor="middle" fill="#222" >mesmo id</text>
+<path d="M742,156 H632" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<rect x="650.05" y="134" width="73.9" height="19" fill="#fff"/>
+<text x="687.0" y="148" font-size="13" font-weight="normal" text-anchor="middle" fill="#222" >empresaId</text>
+<path d="M1042,456 H1060 V117.0 H1086" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<path d="M1239.0,254 V300" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<path d="M892.0,590 V480" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<rect x="865.7" y="542" width="52.599999999999994" height="19" fill="#fff"/>
+<text x="892.0" y="556" font-size="13" font-weight="normal" text-anchor="middle" fill="#222" >vagaId</text>
+<path d="M487.0,590 V330" fill="none" stroke="#333" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#seta)"/>
+<rect x="336.45000000000005" y="542" width="301.09999999999997" height="19" fill="#fff"/>
+<text x="487.0" y="556" font-size="13" font-weight="normal" text-anchor="middle" fill="#222" >empresaId (cópia para controle de acesso)</text>
+<path d="M342,726 H142.0 V302" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<rect x="167.95" y="704" width="88.1" height="19" fill="#fff"/>
+<text x="212.0" y="718" font-size="13" font-weight="normal" text-anchor="middle" fill="#222" >uid anônimo</text>
+<rect x="24" y="820" width="274" height="126" rx="8" fill="#fff" stroke="#999"/>
+<text x="36" y="842" font-size="14" font-weight="bold" text-anchor="start" fill="#111" >Legenda</text>
+<path d="M36,866 H80" fill="none" stroke="#333" stroke-width="1.6"  marker-end="url(#seta)"/>
+<text x="88" y="871" font-size="13" font-weight="normal" text-anchor="start" fill="#111" >referência pelo id</text>
+<path d="M36,892 H80" fill="none" stroke="#333" stroke-width="1.6" stroke-dasharray="7 5" marker-end="url(#seta)"/>
+<text x="88" y="897" font-size="13" font-weight="normal" text-anchor="start" fill="#111" >cópia controlada</text>
+<rect x="38" y="910" width="40" height="22" fill="#f7f7f7" stroke="#555" stroke-dasharray="6 4"/>
+<text x="88" y="926" font-size="13" font-weight="normal" text-anchor="start" fill="#111" >mapa dentro do documento</text>
+</svg>

@@ -18,5 +18,11 @@ next-env.d.ts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Firebase (emulador local e projeto escolhido com "firebase use")
+firestore-debug.log
+firebase-debug.log
+ui-debug.log
+.firebaserc
 .DS_Store
 .vercel

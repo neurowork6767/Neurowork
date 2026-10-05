@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:popular": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/popular-banco.ts",
+    "db:emulador": "npx --yes firebase-tools@14 emulators:exec --only auth,firestore --project demo-neurowork \"npm run db:popular\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

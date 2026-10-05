@@ -46,7 +46,7 @@ O símbolo do logo foi redesenhado em SVG (`src/components/brand/logo-symbol.tsx
 
 ## Como rodar
 
-Pré-requisito: Node.js 20 ou superior.
+Pré-requisito: Node.js 22 ou superior (o site também roda no Node 20, mas o script `db:popular` precisa do 22).
 
 ```bash
 npm install
@@ -77,15 +77,47 @@ Sem esta parte, o sistema funciona no modo demonstração. Para usar o banco rea
 6. **Publique as regras de segurança:** no Firestore, aba **Regras**, apague o conteúdo, cole todo o arquivo `firestore.rules` deste projeto e clique em **Publicar**.
 7. **Reinicie o projeto** (`Ctrl + C` e `npm run dev`). O login de demonstração some e o sistema passa a usar o Firebase. Crie a conta da empresa em **Criar conta**.
 
+8. **Popule o banco (opcional):** veja a seção abaixo.
+
 > As chaves do `.env.local` identificam o projeto e ficam visíveis no navegador; isso é normal no Firebase. Quem protege os dados são as **regras de segurança**. O `.env.local` não vai para o GitHub (está no `.gitignore`).
 
+### Popular o banco com dados de exemplo
+
+O script `scripts/popular-banco.ts` cria no Firestore os mesmos dados do modo demonstração (`src/data/seed.ts`): a empresa Aurora Tecnologia, 3 vagas com etapas e perguntas e 5 candidaturas com respostas. Assim, a apresentação no banco real começa com dados prontos.
+
+1. Faça os passos 1 a 6 acima (projeto, `.env.local`, login, banco e regras publicadas).
+2. No `.env.local`, preencha `SEED_EMPRESA_EMAIL` e `SEED_EMPRESA_SENHA` (a conta da empresa de exemplo; escolha uma senha só sua, com pelo menos 8 caracteres, letras e números).
+3. Rode:
+
+```bash
+npm run db:popular
+```
+
+O script usa o mesmo SDK do site, com a conta da empresa e candidatos anônimos, então **passa pelas mesmas regras de segurança** e não precisa de chave de administrador. No fim, ele mostra os links das vagas. Se a empresa já tiver vagas no banco, ele para sem gravar nada, para não duplicar os dados.
+
+### Testar o banco no emulador (no próprio computador)
+
+O emulador do Firebase roda o Authentication e o Firestore localmente, com as regras do `firestore.rules`, sem usar o projeto real. Precisa do Java (JDK) 21 ou mais novo instalado.
+
+```bash
+npm run db:emulador
+```
+
+O comando liga o emulador, roda o `db:popular` nele (com a conta de demonstração) e desliga tudo no fim. Se as regras recusarem alguma gravação, o script avisa e termina com erro.
+
 ### Como os dados ficam no Firestore
+
+O diagrama `docs/banco-de-dados-firestore.png` mostra as coleções, os campos e as ligações entre elas (o arquivo `.svg` ao lado é a versão editável).
+
+![Estrutura do banco no Cloud Firestore](docs/banco-de-dados-firestore.png)
 
 | Coleção | Documento | Quem lê | Quem altera |
 |---|---|---|---|
 | `empresas` | Um por empresa (id = id do usuário) | A própria empresa | A própria empresa (CNPJ e e-mail bloqueados) |
 | `vagas` | Um por vaga, com as etapas e perguntas dentro | Qualquer pessoa, se a vaga estiver aberta; a empresa dona, sempre | Só a empresa dona |
 | `candidaturas` | Uma por candidatura | A empresa da vaga e o próprio candidato | Candidato: respostas até enviar. Empresa: só o status |
+
+Não há índices compostos para criar: todas as consultas do site usam só filtros de igualdade (por exemplo, `empresaId == ...`), que o Firestore atende com os índices automáticos.
 
 O candidato recebe um **login anônimo** automático: não cria conta nem senha, mas só ele consegue continuar a própria avaliação. As regras também têm uma **lista fechada de campos** para a candidatura, então não é possível gravar diagnóstico ou qualquer dado extra, mesmo alterando o código do site.
 
@@ -228,6 +260,6 @@ src/
 - Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
 - O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
 - No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
-- As regras do Firestore não foram testadas no emulador; teste o fluxo completo depois de publicá-las.
+- As regras do Firestore são exercitadas no emulador pelo `npm run db:emulador` (o fluxo normal precisa ser aceito), mas ainda não há testes automatizados que tentem burlar as regras.
 - O backup é manual (botão no painel). O backup automático do Firestore exige o plano pago.
 - A plataforma não solicita, não infere e não registra diagnósticos.
