@@ -46,7 +46,7 @@ O símbolo do logo foi redesenhado em SVG (`src/components/brand/logo-symbol.tsx
 
 ## Como rodar
 
-Pré-requisito: Node.js 22 ou superior (o site também roda no Node 20, mas o script `db:popular` precisa do 22).
+Pré-requisito: Node.js 20 ou superior.
 
 ```bash
 npm install
@@ -63,7 +63,32 @@ Outros comandos:
 npm run build      # build de produção (também roda lint e checagem de tipos)
 npm run lint       # ESLint
 npm run typecheck  # só a checagem do TypeScript
+npm test           # 12 testes automatizados da camada de serviços
 ```
+
+## Testes automatizados
+
+Os testes usam o executor de testes nativo do Node.js (`node:test`). O `tsx` permite rodar os arquivos TypeScript do projeto direto, sem compilar antes.
+
+| Comando | Arquivo | O que testa |
+|---|---|---|
+| `npm test` | `tests/neurowork.test.ts` | 12 testes da camada de serviços no modo demonstração (sem internet) |
+| `npm run test:regras` | `tests/regras-firestore.test.ts` | 14 testes das regras de segurança do banco, no emulador do Firebase (precisa do Java 21 ou mais novo) |
+
+Os 12 testes seguem as linhas da Tabela 1 da monografia, dois por linha:
+
+| Grupo | Testes |
+|---|---|
+| Cadastro e login da empresa | A empresa cadastrada entra e vê os próprios dados; e-mail sem conta, senha errada e cadastro repetido são recusados |
+| Isolamento entre empresas | Uma empresa não vê, não abre, não altera e não exclui as vagas e as candidaturas de outra |
+| Criação de vaga e link | A vaga aparece pelo link público, sem login; vaga encerrada não recebe candidaturas e volta ao ser reaberta |
+| Candidatura e avaliação adaptada | A candidatura chega à empresa com as respostas e os ajustes compartilhados; o aceite da LGPD é obrigatório e nenhum campo de condição ou diagnóstico é guardado |
+| Certificados, exclusão e backup | Até 5 certificados em PDF de até 5 MB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
+| Banco de perguntas e atalhos | 16 perguntas em 7 categorias, sem termos de saúde; os atalhos só sugerem ajustes que existem |
+
+Os 14 testes das regras tentam operar direto no banco, como faria alguém que alterasse o código do site: gravar um campo de diagnóstico, enviar sem o aceite da LGPD, candidatar-se a vaga encerrada, mudar o próprio status, ler ou alterar dados de outra empresa, trocar o CNPJ, entre outros. Todas essas tentativas precisam ser recusadas pelo servidor; a candidatura válida e a mudança de status pela empresa precisam ser aceitas.
+
+No modo demonstração, cada operação espera de 0,3 a 1,2 segundo para mostrar os estados de carregamento; durante os testes essa espera é pulada.
 
 ## Configurar o Firebase (banco de dados)
 
@@ -260,6 +285,5 @@ src/
 - Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
 - O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
 - No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
-- As regras do Firestore são exercitadas no emulador pelo `npm run db:emulador` (o fluxo normal precisa ser aceito), mas ainda não há testes automatizados que tentem burlar as regras.
 - O backup é manual (botão no painel). O backup automático do Firestore exige o plano pago.
 - A plataforma não solicita, não infere e não registra diagnósticos.

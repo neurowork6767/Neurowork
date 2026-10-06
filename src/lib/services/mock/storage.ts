@@ -76,7 +76,11 @@ export function requireSession(): Sessao {
   return sessao;
 }
 
-/** Simula o tempo de resposta de um servidor, para que os estados de carregamento apareçam. */
+/**
+ * Simula o tempo de resposta de um servidor, para que os estados de carregamento apareçam.
+ * Nos testes automatizados (npm test) não há espera.
+ */
 export function delay(ms = 500) {
+  if (process.env.NODE_ENV === "test") return Promise.resolve();
   return new Promise<void>((resolve) => setTimeout(resolve, ms));
 }

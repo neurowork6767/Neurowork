@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:popular": "node --experimental-strip-types --disable-warning=ExperimentalWarning --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/popular-banco.ts",
+    "test": "node --import tsx --test --test-reporter=spec tests/neurowork.test.ts",
+    "test:regras": "npx --yes firebase-tools@14 emulators:exec --only auth,firestore --project demo-neurowork \"node --import tsx --test --test-reporter=spec tests/regras-firestore.test.ts\"",
+    "db:popular": "node --import tsx scripts/popular-banco.ts",
     "db:emulador": "npx --yes firebase-tools@14 emulators:exec --only auth,firestore --project demo-neurowork \"npm run db:popular\""
   },
   "dependencies": {
@@ -37,6 +39,7 @@
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.3.0",
     "tailwindcss": "^4.1.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3"
   }
 }

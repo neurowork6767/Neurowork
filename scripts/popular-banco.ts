@@ -33,7 +33,7 @@ import {
   where,
 } from "firebase/firestore";
 
-import { DEMO_LOGIN, seedCandidaturas, seedEmpresas, seedVagas } from "../src/data/seed.ts";
+import { DEMO_LOGIN, seedCandidaturas, seedEmpresas, seedVagas } from "@/data/seed";
 
 const COLECOES = { empresas: "empresas", vagas: "vagas", candidaturas: "candidaturas" } as const;
 
