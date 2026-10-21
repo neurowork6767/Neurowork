@@ -63,7 +63,32 @@ Outros comandos:
 npm run build      # build de produção (também roda lint e checagem de tipos)
 npm run lint       # ESLint
 npm run typecheck  # só a checagem do TypeScript
+npm test           # 12 testes automatizados da camada de serviços
 ```
+
+## Testes automatizados
+
+Os testes usam o executor de testes nativo do Node.js (`node:test`). O `tsx` permite rodar os arquivos TypeScript do projeto direto, sem compilar antes.
+
+| Comando | Arquivo | O que testa |
+|---|---|---|
+| `npm test` | `tests/neurowork.test.ts` | 12 testes da camada de serviços no modo demonstração (sem internet) |
+| `npm run test:regras` | `tests/regras-firestore.test.ts` | 14 testes das regras de segurança do banco, no emulador do Firebase (precisa do Java 21 ou mais novo) |
+
+Os 12 testes seguem as linhas da Tabela 1 da monografia, dois por linha:
+
+| Grupo | Testes |
+|---|---|
+| Cadastro e login da empresa | A empresa cadastrada entra e vê os próprios dados; e-mail sem conta, senha errada e cadastro repetido são recusados |
+| Isolamento entre empresas | Uma empresa não vê, não abre, não altera e não exclui as vagas e as candidaturas de outra |
+| Criação de vaga e link | A vaga aparece pelo link público, sem login; vaga encerrada não recebe candidaturas e volta ao ser reaberta |
+| Candidatura e avaliação adaptada | A candidatura chega à empresa com as respostas e os ajustes compartilhados; o aceite da LGPD é obrigatório e nenhum campo de condição ou diagnóstico é guardado |
+| Certificados, exclusão e backup | Até 5 certificados em PDF de até 5 MB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
+| Banco de perguntas e atalhos | 16 perguntas em 7 categorias, sem termos de saúde; os atalhos só sugerem ajustes que existem |
+
+Os 14 testes das regras tentam operar direto no banco, como faria alguém que alterasse o código do site: gravar um campo de diagnóstico, enviar sem o aceite da LGPD, candidatar-se a vaga encerrada, mudar o próprio status, ler ou alterar dados de outra empresa, trocar o CNPJ, entre outros. Todas essas tentativas precisam ser recusadas pelo servidor; a candidatura válida e a mudança de status pela empresa precisam ser aceitas.
+
+No modo demonstração, cada operação espera de 0,3 a 1,2 segundo para mostrar os estados de carregamento; durante os testes essa espera é pulada.
 
 ## Configurar o Firebase (banco de dados)
 
@@ -77,15 +102,47 @@ Sem esta parte, o sistema funciona no modo demonstração. Para usar o banco rea
 6. **Publique as regras de segurança:** no Firestore, aba **Regras**, apague o conteúdo, cole todo o arquivo `firestore.rules` deste projeto e clique em **Publicar**.
 7. **Reinicie o projeto** (`Ctrl + C` e `npm run dev`). O login de demonstração some e o sistema passa a usar o Firebase. Crie a conta da empresa em **Criar conta**.
 
+8. **Popule o banco (opcional):** veja a seção abaixo.
+
 > As chaves do `.env.local` identificam o projeto e ficam visíveis no navegador; isso é normal no Firebase. Quem protege os dados são as **regras de segurança**. O `.env.local` não vai para o GitHub (está no `.gitignore`).
 
+### Popular o banco com dados de exemplo
+
+O script `scripts/popular-banco.ts` cria no Firestore os mesmos dados do modo demonstração (`src/data/seed.ts`): a empresa Aurora Tecnologia, 3 vagas com etapas e perguntas e 5 candidaturas com respostas. Assim, a apresentação no banco real começa com dados prontos.
+
+1. Faça os passos 1 a 6 acima (projeto, `.env.local`, login, banco e regras publicadas).
+2. No `.env.local`, preencha `SEED_EMPRESA_EMAIL` e `SEED_EMPRESA_SENHA` (a conta da empresa de exemplo; escolha uma senha só sua, com pelo menos 8 caracteres, letras e números).
+3. Rode:
+
+```bash
+npm run db:popular
+```
+
+O script usa o mesmo SDK do site, com a conta da empresa e candidatos anônimos, então **passa pelas mesmas regras de segurança** e não precisa de chave de administrador. No fim, ele mostra os links das vagas. Se a empresa já tiver vagas no banco, ele para sem gravar nada, para não duplicar os dados.
+
+### Testar o banco no emulador (no próprio computador)
+
+O emulador do Firebase roda o Authentication e o Firestore localmente, com as regras do `firestore.rules`, sem usar o projeto real. Precisa do Java (JDK) 21 ou mais novo instalado.
+
+```bash
+npm run db:emulador
+```
+
+O comando liga o emulador, roda o `db:popular` nele (com a conta de demonstração) e desliga tudo no fim. Se as regras recusarem alguma gravação, o script avisa e termina com erro.
+
 ### Como os dados ficam no Firestore
+
+O diagrama `docs/banco-de-dados-firestore.png` mostra as coleções, os campos e as ligações entre elas (o arquivo `.svg` ao lado é a versão editável).
+
+![Estrutura do banco no Cloud Firestore](docs/banco-de-dados-firestore.png)
 
 | Coleção | Documento | Quem lê | Quem altera |
 |---|---|---|---|
 | `empresas` | Um por empresa (id = id do usuário) | A própria empresa | A própria empresa (CNPJ e e-mail bloqueados) |
 | `vagas` | Um por vaga, com as etapas e perguntas dentro | Qualquer pessoa, se a vaga estiver aberta; a empresa dona, sempre | Só a empresa dona |
 | `candidaturas` | Uma por candidatura | A empresa da vaga e o próprio candidato | Candidato: respostas até enviar. Empresa: só o status |
+
+Não há índices compostos para criar: todas as consultas do site usam só filtros de igualdade (por exemplo, `empresaId == ...`), que o Firestore atende com os índices automáticos.
 
 O candidato recebe um **login anônimo** automático: não cria conta nem senha, mas só ele consegue continuar a própria avaliação. As regras também têm uma **lista fechada de campos** para a candidatura, então não é possível gravar diagnóstico ou qualquer dado extra, mesmo alterando o código do site.
 
@@ -228,6 +285,5 @@ src/
 - Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
 - O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
 - No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
-- As regras do Firestore não foram testadas no emulador; teste o fluxo completo depois de publicá-las.
 - O backup é manual (botão no painel). O backup automático do Firestore exige o plano pago.
 - A plataforma não solicita, não infere e não registra diagnósticos.
