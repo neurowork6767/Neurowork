@@ -63,7 +63,7 @@ Outros comandos:
 npm run build      # build de produção (também roda lint e checagem de tipos)
 npm run lint       # ESLint
 npm run typecheck  # só a checagem do TypeScript
-npm test           # 12 testes automatizados da camada de serviços
+npm test           # 14 testes automatizados da camada de serviços
 ```
 
 ## Testes automatizados
@@ -72,10 +72,10 @@ Os testes usam o executor de testes nativo do Node.js (`node:test`). O `tsx` per
 
 | Comando | Arquivo | O que testa |
 |---|---|---|
-| `npm test` | `tests/neurowork.test.ts` | 12 testes da camada de serviços no modo demonstração (sem internet) |
+| `npm test` | `tests/neurowork.test.ts` | 14 testes da camada de serviços no modo demonstração (sem internet) |
 | `npm run test:regras` | `tests/regras-firestore.test.ts` | 14 testes das regras de segurança do banco, no emulador do Firebase (precisa do Java 21 ou mais novo) |
 
-Os 12 testes seguem as linhas da Tabela 1 da monografia, dois por linha:
+São 14 testes. Os 12 primeiros seguem as linhas da Tabela 1 da monografia, dois por linha; os 2 últimos cobrem o envio do link da vaga pelo WhatsApp e pelo e-mail:
 
 | Grupo | Testes |
 |---|---|
@@ -85,6 +85,7 @@ Os 12 testes seguem as linhas da Tabela 1 da monografia, dois por linha:
 | Candidatura e avaliação adaptada | A candidatura chega à empresa com as respostas e os ajustes compartilhados; o aceite da LGPD é obrigatório e nenhum campo de condição ou diagnóstico é guardado |
 | Certificados, exclusão e backup | Até 5 certificados em PDF de até 5 MB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
 | Banco de perguntas e atalhos | 16 perguntas em 7 categorias, sem termos de saúde; os atalhos só sugerem ajustes que existem |
+| Envio do link pelo WhatsApp e e-mail | O número vira o formato do WhatsApp (55 + DDD) e números incompletos são recusados; o e-mail vai para o endereço cadastrado, com assunto e o link da vaga |
 
 Os 14 testes das regras tentam operar direto no banco, como faria alguém que alterasse o código do site: gravar um campo de diagnóstico, enviar sem o aceite da LGPD, candidatar-se a vaga encerrada, mudar o próprio status, ler ou alterar dados de outra empresa, trocar o CNPJ, entre outros. Todas essas tentativas precisam ser recusadas pelo servidor; a candidatura válida e a mudança de status pela empresa precisam ser aceitas.
 
@@ -168,7 +169,7 @@ Na montagem do processo seletivo, a empresa pode escrever, em cada pergunta, a e
 ## Roteiro de demonstração (fluxo principal)
 
 1. **Empresa:** entre com a conta de demonstração (ou crie uma em "Criar conta").
-2. **Vagas → Criar vaga:** preencha o formulário. Ao salvar, o link da vaga aparece para copiar.
+2. **Vagas → Criar vaga:** preencha o formulário. Ao salvar, o link da vaga aparece para copiar ou enviar pelo WhatsApp ou e-mail (o sistema abre o app com a mensagem pronta; você confere e envia).
 3. **Montar processo seletivo:** adicione etapas e perguntas; use "Ver como o candidato".
 4. **Candidato:** abra o link da vaga (de preferência em outra aba), candidate-se sem conta e anexe um PDF. Na tela de ajustes, escolha um atalho (ex.: TDAH), veja o exemplo em "Ver como vai ficar" e responda à avaliação.
 5. **Empresa:** em **Candidatos**, abra a candidatura, veja as respostas e altere o status.
@@ -233,7 +234,7 @@ src/
 | FE06 Painel | `/painel` |
 | FE07 Lista de vagas | `/painel/vagas` |
 | FE08 Criar/editar/encerrar vaga | `/painel/vagas/nova`, `/painel/vagas/[id]/editar`, `/painel/vagas/[id]` |
-| FE09 Link da vaga | `src/components/vagas/job-link-card.tsx` |
+| FE09 Link da vaga | `src/components/vagas/job-link-card.tsx`, envio pelo WhatsApp/e-mail em `enviar-link-vaga.tsx` e `src/lib/mensagens.ts` |
 | FE10 Landing page | `/` |
 | FE11 Processo seletivo | `/painel/vagas/[id]/processo` |
 | FE12 Candidatos | `/painel/candidatos` |
@@ -256,7 +257,7 @@ src/
 | RF-02 Login da empresa | Atendido | `/login` |
 | RF-03 Cadastro de vagas | Atendido | `/painel/vagas/nova` |
 | RF-04 Processo seletivo personalizado | Atendido | `/painel/vagas/[id]/processo` |
-| RF-05 Link sem cadastro | Atendido | `job-link-card.tsx`, `/vaga/[slug]`, login anônimo |
+| RF-05 Link sem cadastro | Atendido | `job-link-card.tsx`, `/vaga/[slug]`, login anônimo; envio do link pelo WhatsApp ou e-mail (`src/lib/mensagens.ts`) |
 | RF-06 Perfil profissional | Parcial | `/vaga/[slug]/candidatura` (os arquivos são validados, mas não enviados) |
 | RF-07 Avaliação adaptada | Atendido | `/vaga/[slug]/ajustes` e `/vaga/[slug]/avaliacao` |
 | RF-08 Currículo, certificados e portfólio | Parcial | Campos prontos; falta o armazenamento dos arquivos |

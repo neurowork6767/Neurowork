@@ -16,6 +16,7 @@ import { BANCO_PERGUNTAS, CATEGORIAS_BANCO } from "@/data/banco-perguntas";
 import { DEMO_LOGIN } from "@/data/seed";
 import { AJUSTES, ATALHOS, isAjusteId } from "@/lib/ajustes";
 import { MAX_CERTIFICADOS, MAX_FILE_SIZE } from "@/lib/constants";
+import { linkEmail, linkWhatsApp, mensagemCandidato, mensagemConvite, telefoneParaWhatsApp } from "@/lib/mensagens";
 import {
   alterarStatusCandidatura,
   alterarStatusVaga,
@@ -432,5 +433,39 @@ describe("Banco de perguntas e atalhos", () => {
       assert.equal(new Set(atalho.sugestao).size, atalho.sugestao.length, `${atalho.id}: ajuste repetido`);
     }
     assert.deepEqual(ATALHOS.find((a) => a.id === "manual")?.sugestao, [], "escolher sozinho não marca nada");
+  });
+});
+
+describe("Envio do link pelo WhatsApp e pelo e-mail", () => {
+  const vaga = {
+    titulo: "Assistente Administrativo",
+    empresaNome: "Aurora Tecnologia",
+    link: "https://neurowork.app/vaga/abc",
+  };
+
+  test("monta o número do WhatsApp com o código do Brasil e recusa números incompletos", () => {
+    assert.equal(telefoneParaWhatsApp("(11) 91234-5678"), "5511912345678");
+    assert.equal(telefoneParaWhatsApp("(49) 3322-1100"), "554933221100");
+    assert.equal(telefoneParaWhatsApp("+55 11 91234-5678"), "5511912345678");
+    assert.equal(telefoneParaWhatsApp("1234"), null);
+
+    const whatsapp = new URL(linkWhatsApp(mensagemConvite(vaga, "Ana Souza"), "(11) 91234-5678"));
+    assert.equal(whatsapp.origin + whatsapp.pathname, "https://wa.me/5511912345678");
+    const texto = whatsapp.searchParams.get("text") ?? "";
+    assert.match(texto, /^Olá, Ana!/);
+    assert.ok(texto.includes(vaga.link), "a mensagem leva o link da vaga");
+
+    assert.equal(new URL(linkWhatsApp("Oi")).pathname, "/", "sem número, a pessoa escolhe o contato");
+  });
+
+  test("o e-mail vai para o endereço cadastrado, com assunto e o link da vaga", () => {
+    const email = linkEmail({
+      para: " ana@email.com ",
+      assunto: "Sua candidatura",
+      mensagem: mensagemCandidato(vaga, "Ana Souza"),
+    });
+    assert.ok(email.startsWith("mailto:ana@email.com?subject=Sua%20candidatura&body="));
+    const corpo = decodeURIComponent(email.split("&body=")[1]);
+    assert.ok(corpo.includes("Aurora Tecnologia") && corpo.includes(vaga.titulo) && corpo.includes(vaga.link));
   });
 });

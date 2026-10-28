@@ -57,7 +57,7 @@ export default function NovaVagaPage() {
             </>
           }
         />
-        <JobLinkCard slug={vagaCriada.slug} />
+        <JobLinkCard slug={vagaCriada.slug} vagaTitulo={vagaCriada.titulo} empresaNome={vagaCriada.empresaNome} />
       </div>
     );
   }

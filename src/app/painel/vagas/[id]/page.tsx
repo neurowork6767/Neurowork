@@ -90,7 +90,7 @@ export default function VagaDetalhePage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <JobLinkCard slug={vaga.slug} disabled={!aberta} />
+          <JobLinkCard slug={vaga.slug} disabled={!aberta} vagaTitulo={vaga.titulo} empresaNome={vaga.empresaNome} />
 
           <Card>
             <CardHeader>

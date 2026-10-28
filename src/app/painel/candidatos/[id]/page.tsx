@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileText, Mail, MapPin, Phone, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText, Mail, MapPin, MessageCircle, Phone, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { EmptyState, ErrorState, LoadingState } from "@/components/feedback/states";
@@ -18,7 +18,8 @@ import { CandidaturaStatusBadge } from "@/components/vagas/status-badges";
 import { useService } from "@/hooks/use-service";
 import { AJUSTE_LABEL } from "@/lib/ajustes";
 import { CANDIDATURA_STATUS_LABEL, STATUS_SELECIONAVEIS } from "@/lib/constants";
-import { alterarStatusCandidatura, excluirCandidatura, obterCandidatura } from "@/lib/services";
+import { assuntoCandidato, linkEmail, linkWhatsApp, mensagemCandidato, telefoneParaWhatsApp } from "@/lib/mensagens";
+import { alterarStatusCandidatura, excluirCandidatura, getLinkDaVaga, obterCandidatura } from "@/lib/services";
 import { formatDate, formatFileSize } from "@/lib/utils";
 import type { ArquivoInfo, CandidaturaStatus } from "@/types";
 
@@ -89,6 +90,12 @@ export default function CandidatoDetalhePage() {
 
   const { vaga } = candidatura;
   const totalPerguntas = vaga.etapas.reduce((acc, e) => acc + e.perguntas.length, 0);
+  // Mensagem com o link da vaga para o telefone e o e-mail que o próprio candidato cadastrou
+  const mensagemContato = mensagemCandidato(
+    { titulo: vaga.titulo, empresaNome: vaga.empresaNome, link: getLinkDaVaga(vaga.slug) },
+    candidatura.nome
+  );
+  const temWhatsApp = telefoneParaWhatsApp(candidatura.telefone) !== null;
 
   return (
     <>
@@ -135,6 +142,40 @@ export default function CandidatoDetalhePage() {
                   </div>
                 </div>
               </dl>
+
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  {temWhatsApp && (
+                    <Button asChild size="sm">
+                      <a
+                        href={linkWhatsApp(mensagemContato, candidatura.telefone)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle aria-hidden="true" />
+                        Mensagem no WhatsApp
+                        <span className="sr-only"> (abre em nova aba)</span>
+                      </a>
+                    </Button>
+                  )}
+                  <Button asChild size="sm" variant="outline">
+                    <a
+                      href={linkEmail({
+                        para: candidatura.email,
+                        assunto: assuntoCandidato(vaga.titulo),
+                        mensagem: mensagemContato,
+                      })}
+                    >
+                      <Mail aria-hidden="true" />
+                      Enviar e-mail
+                    </a>
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Abre o WhatsApp ou o e-mail com uma mensagem pronta e o link da vaga, para o telefone e o e-mail que o
+                  candidato cadastrou. Você confere o texto e envia.
+                </p>
+              </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <Arquivo label="Currículo" arquivo={candidatura.curriculo} />
