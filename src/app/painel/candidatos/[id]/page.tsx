@@ -19,19 +19,60 @@ import { useService } from "@/hooks/use-service";
 import { AJUSTE_LABEL } from "@/lib/ajustes";
 import { CANDIDATURA_STATUS_LABEL, STATUS_SELECIONAVEIS } from "@/lib/constants";
 import { assuntoCandidato, linkEmail, linkWhatsApp, mensagemCandidato, telefoneParaWhatsApp } from "@/lib/mensagens";
-import { alterarStatusCandidatura, excluirCandidatura, getLinkDaVaga, obterCandidatura } from "@/lib/services";
+import { mostrarPdf } from "@/lib/arquivos";
+import {
+  alterarStatusCandidatura,
+  excluirCandidatura,
+  getLinkDaVaga,
+  obterArquivo,
+  obterCandidatura,
+} from "@/lib/services";
 import { formatDate, formatFileSize } from "@/lib/utils";
 import type { ArquivoInfo, CandidaturaStatus } from "@/types";
 
-function Arquivo({ label, arquivo }: { label: string; arquivo: ArquivoInfo }) {
+function Arquivo({ label, arquivo, candidaturaId }: { label: string; arquivo: ArquivoInfo; candidaturaId: string }) {
+  const [abrindo, setAbrindo] = React.useState(false);
+
+  async function abrir() {
+    if (!arquivo.id) return;
+    // A aba é aberta já no clique; depois de buscar o arquivo, o navegador bloquearia
+    const aba = window.open("", "_blank");
+    setAbrindo(true);
+    try {
+      const { conteudo } = await obterArquivo(candidaturaId, arquivo.id);
+      await mostrarPdf(arquivo.nome, conteudo, aba);
+    } catch (err) {
+      aba?.close();
+      toast.error(err instanceof Error ? err.message : "Não foi possível abrir o arquivo.");
+    } finally {
+      setAbrindo(false);
+    }
+  }
+
   return (
     <div className="flex items-center gap-3 rounded-lg border p-3">
       <FileText className="size-5 shrink-0 text-primary" aria-hidden="true" />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-sm text-muted-foreground">{label}</p>
         <p className="truncate font-medium">{arquivo.nome}</p>
-        <p className="text-xs text-muted-foreground">PDF · {formatFileSize(arquivo.tamanho)}</p>
+        <p className="text-xs text-muted-foreground">
+          PDF · {formatFileSize(arquivo.tamanho)}
+          {!arquivo.id && " · exemplo, sem arquivo"}
+        </p>
       </div>
+      {arquivo.id && (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={abrir}
+          loading={abrindo}
+          aria-label={`Abrir ${label.toLowerCase()} (${arquivo.nome}) em nova aba`}
+        >
+          {!abrindo && <ExternalLink aria-hidden="true" />}
+          Abrir
+        </Button>
+      )}
     </div>
   );
 }
@@ -178,15 +219,19 @@ export default function CandidatoDetalhePage() {
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <Arquivo label="Currículo" arquivo={candidatura.curriculo} />
-                {candidatura.portfolio && <Arquivo label="Portfólio" arquivo={candidatura.portfolio} />}
+                <Arquivo label="Currículo" arquivo={candidatura.curriculo} candidaturaId={candidatura.id} />
+                {candidatura.portfolio && (
+                  <Arquivo label="Portfólio" arquivo={candidatura.portfolio} candidaturaId={candidatura.id} />
+                )}
                 {candidatura.certificados.map((certificado, i) => (
-                  <Arquivo key={`${certificado.nome}-${i}`} label={`Certificado ${i + 1}`} arquivo={certificado} />
+                  <Arquivo
+                    key={`${certificado.nome}-${i}`}
+                    label={`Certificado ${i + 1}`}
+                    arquivo={certificado}
+                    candidaturaId={candidatura.id}
+                  />
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Nesta versão os arquivos não são enviados; só o nome e o tamanho ficam registrados.
-              </p>
 
               {candidatura.portfolioLink && (
                 <a

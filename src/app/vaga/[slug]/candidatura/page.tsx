@@ -21,6 +21,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useService } from "@/hooks/use-service";
+import { lerArquivo } from "@/lib/arquivos";
 import { novoProgresso, writeCandidateProgress } from "@/lib/candidate-session";
 import { MAX_CERTIFICADOS } from "@/lib/constants";
 import { enviarCandidatura, obterVagaPublica } from "@/lib/services";
@@ -104,9 +105,10 @@ export default function CandidaturaPage() {
         email: values.email,
         telefone: values.telefone,
         cidade: values.cidade,
-        curriculo: { nome: values.curriculo.name, tamanho: values.curriculo.size },
-        portfolio: values.portfolio ? { nome: values.portfolio.name, tamanho: values.portfolio.size } : null,
-        certificados: values.certificados.map((file) => ({ nome: file.name, tamanho: file.size })),
+        // Os PDFs vão junto, em base64, e ficam guardados no banco para a empresa abrir
+        curriculo: await lerArquivo(values.curriculo),
+        portfolio: values.portfolio ? await lerArquivo(values.portfolio) : null,
+        certificados: await Promise.all(values.certificados.map(lerArquivo)),
         portfolioLink: values.portfolioLink,
         adaptacoes: values.adaptacoes,
         consentimentoLgpd: values.consentimentoLgpd,

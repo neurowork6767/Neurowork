@@ -35,6 +35,7 @@ import {
   login,
   logout,
   modoDemonstracao,
+  obterArquivo,
   obterCandidatura,
   obterEmpresaAtual,
   obterResumoPainel,
@@ -338,7 +339,7 @@ describe("Candidatura e avaliação adaptada", () => {
 /* ---------- Tabela 1: Certificados, exclusão e backup ---------- */
 
 describe("Certificados, exclusão e backup", () => {
-  test("aceita até 5 certificados em PDF de até 5 MB e guarda nome e tamanho", async () => {
+  test("aceita até 5 certificados em PDF de até 700 KB e guarda nome e tamanho", async () => {
     const cinco = Array.from({ length: MAX_CERTIFICADOS }, (_, i) => pdf(`certificado-${i + 1}.pdf`, 2000));
     assert.equal(await candidaturaSchema.isValid({ ...formularioValido(), certificados: cinco }), true);
     assert.equal(
@@ -354,7 +355,7 @@ describe("Certificados, exclusão e backup", () => {
     assert.equal(
       await candidaturaSchema.isValid({ ...formularioValido(), curriculo: pdf("grande.pdf", MAX_FILE_SIZE + 1) }),
       false,
-      "currículo acima de 5 MB"
+      "currículo acima de 700 KB"
     );
 
     const vaga = await empresaComVaga();
@@ -399,6 +400,32 @@ describe("Certificados, exclusão e backup", () => {
     );
     assert.doesNotMatch(JSON.stringify(backup), /senha/i, "o backup não tem senha");
     assert.doesNotMatch(JSON.stringify(backup), /Aurora Tecnologia/, "o backup não tem dados de outra empresa");
+  });
+});
+
+/* ---------- PDFs guardados no banco ---------- */
+
+describe("PDFs guardados no banco", () => {
+  test("a empresa abre o PDF que o candidato enviou e ele some quando a candidatura é excluída", async () => {
+    const vaga = await empresaComVaga();
+    const conteudo = Buffer.from("%PDF-1.4 currículo de teste").toString("base64");
+    const curriculo = { nome: "curriculo.pdf", tamanho: 28, conteudo };
+    const enviada = await enviarCandidatura(vaga.id, dadosDoCandidato({ curriculo }));
+    const arquivoId = enviada.curriculo.id;
+    assert.ok(arquivoId, "o currículo ganhou um id");
+    assert.equal("conteudo" in enviada.curriculo, false, "o conteúdo não fica dentro da candidatura");
+
+    await login("rh@empresa-a.com", "senha1234");
+    assert.deepEqual(await obterArquivo(enviada.id, arquivoId), { nome: "curriculo.pdf", conteudo });
+
+    await excluirCandidatura(enviada.id);
+    await assert.rejects(obterArquivo(enviada.id, arquivoId), ServiceError);
+  });
+
+  test("recusa PDF acima de 700 KB", async () => {
+    const vaga = await empresaComVaga();
+    const grande = { nome: "grande.pdf", tamanho: MAX_FILE_SIZE + 10, conteudo: "A".repeat(1_000_000) };
+    await assert.rejects(enviarCandidatura(vaga.id, dadosDoCandidato({ curriculo: grande })), ServiceError);
   });
 });
 

@@ -38,7 +38,12 @@ export const ADAPTACOES_SUGERIDAS = [
   "Pausas durante as etapas",
 ];
 
-export const MAX_FILE_SIZE_MB = 5;
-export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
+/**
+ * Cada PDF é guardado num documento do Firestore, que aceita no máximo 1 MiB.
+ * Em base64 o arquivo cresce cerca de 33%, por isso o limite é de 700 KB.
+ */
+export const MAX_FILE_SIZE_KB = 700;
+export const MAX_FILE_SIZE = MAX_FILE_SIZE_KB * 1024;
+export const MAX_FILE_SIZE_LABEL = `${MAX_FILE_SIZE_KB} KB`;
 
 export const MAX_CERTIFICADOS = 5;

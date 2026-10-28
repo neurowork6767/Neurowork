@@ -1,6 +1,16 @@
 import { PLANOS } from "@/data/planos";
-import { CANDIDATURA_STATUS_LABEL } from "@/lib/constants";
-import type { Candidatura, CandidaturaStatus, Empresa, Plano, Vaga } from "@/types";
+import { CANDIDATURA_STATUS_LABEL, MAX_FILE_SIZE, MAX_FILE_SIZE_LABEL } from "@/lib/constants";
+import type {
+  ArquivoEnviado,
+  ArquivoInfo,
+  Candidatura,
+  CandidaturaStatus,
+  Empresa,
+  NovaCandidatura,
+  Plano,
+  TipoArquivo,
+  Vaga,
+} from "@/types";
 
 /**
  * Tipos e funções usados pelas duas implementações da camada de serviços
@@ -30,6 +40,44 @@ export type VagaComResumo = Vaga & { totalCandidaturas: number };
 export type CandidaturaComVaga = Candidatura & { vagaTitulo: string };
 
 export type CandidaturaDetalhe = Candidatura & { vaga: Vaga };
+
+/** PDF guardado à parte da candidatura (no Firestore, na subcoleção "arquivos"). */
+export type ArquivoGuardado = { id: string; nome: string; tamanho: number; tipo: TipoArquivo; conteudo: string };
+
+/** O que a empresa recebe ao abrir um arquivo: o nome e o PDF em base64. */
+export type ArquivoConteudo = { nome: string; conteudo: string };
+
+/**
+ * Separa o conteúdo dos PDFs, que é guardado à parte, dos dados da candidatura,
+ * que ficam só com o nome, o tamanho e o id de cada arquivo.
+ */
+export function prepararArquivos(dados: NovaCandidatura, novoId: () => string) {
+  const guardados: ArquivoGuardado[] = [];
+
+  function registrar(arquivo: ArquivoEnviado, tipo: TipoArquivo): ArquivoInfo {
+    if (!arquivo.conteudo) return { nome: arquivo.nome, tamanho: arquivo.tamanho };
+    // Em base64, cada 4 caracteres representam 3 bytes do arquivo
+    if (arquivo.tamanho > MAX_FILE_SIZE || (arquivo.conteudo.length * 3) / 4 > MAX_FILE_SIZE + 3) {
+      throw new ServiceError(`O arquivo "${arquivo.nome}" passa de ${MAX_FILE_SIZE_LABEL}.`);
+    }
+    const id = novoId();
+    guardados.push({ id, nome: arquivo.nome, tamanho: arquivo.tamanho, tipo, conteudo: arquivo.conteudo });
+    return { nome: arquivo.nome, tamanho: arquivo.tamanho, id };
+  }
+
+  return {
+    curriculo: registrar(dados.curriculo, "curriculo"),
+    portfolio: dados.portfolio ? registrar(dados.portfolio, "portfolio") : null,
+    certificados: dados.certificados.map((certificado) => registrar(certificado, "certificado")),
+    guardados,
+  };
+}
+
+/** Ids dos PDFs guardados de uma candidatura (usados para apagar tudo junto). */
+export function idsDosArquivos(candidatura: Pick<Candidatura, "curriculo" | "portfolio" | "certificados">): string[] {
+  const arquivos = [candidatura.curriculo, candidatura.portfolio, ...candidatura.certificados];
+  return arquivos.flatMap((arquivo) => (arquivo?.id ? [arquivo.id] : []));
+}
 
 export type ResumoPainel = {
   vagasAbertas: number;

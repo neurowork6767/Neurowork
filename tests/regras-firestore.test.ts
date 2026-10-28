@@ -31,6 +31,7 @@ import {
   setLogLevel,
   updateDoc,
   where,
+  writeBatch,
   type Firestore,
 } from "firebase/firestore";
 
@@ -210,6 +211,51 @@ describe("Regras de segurança do Firestore", { skip: SEM_EMULADOR && "rode com 
 
     test("uma empresa não altera a vaga de outra", async () => {
       await bloqueado(updateDoc(doc(empresaB.db, "vagas", vagaAberta), { titulo: "Alterada" }));
+    });
+  });
+
+  describe("PDFs da candidatura", () => {
+    const PDF = "JVBERi0xLjQK"; // "%PDF-1.4" em base64
+    let candidaturaComPdf: string;
+
+    function arquivo(extra: Record<string, unknown> = {}) {
+      return {
+        nome: "curriculo.pdf",
+        tipo: "curriculo",
+        tamanho: 9,
+        conteudo: PDF,
+        enviadoEm: new Date().toISOString(),
+        ...extra,
+      };
+    }
+
+    test("o candidato envia a candidatura e o PDF juntos", async () => {
+      const ref = doc(collection(candidato.db, "candidaturas"));
+      const lote = writeBatch(candidato.db);
+      lote.set(ref, candidatura({ curriculo: { nome: "curriculo.pdf", tamanho: 9, id: "pdf1" } }));
+      lote.set(doc(ref, "arquivos", "pdf1"), arquivo());
+      await lote.commit();
+      candidaturaComPdf = ref.id;
+    });
+
+    test("não grava arquivo que a candidatura não lista", async () => {
+      await bloqueado(setDoc(doc(candidato.db, "candidaturas", candidaturaComPdf, "arquivos", "extra"), arquivo()));
+    });
+
+    test("não aceita PDF acima de 700 KB", async () => {
+      for (const grande of [{ tamanho: 900_000 }, { tamanho: 700_000, conteudo: "A".repeat(960_001) }]) {
+        const ref = doc(collection(candidato.db, "candidaturas"));
+        const lote = writeBatch(candidato.db);
+        lote.set(ref, candidatura({ curriculo: { nome: "grande.pdf", tamanho: grande.tamanho, id: "grande" } }));
+        lote.set(doc(ref, "arquivos", "grande"), arquivo(grande));
+        await bloqueado(lote.commit());
+      }
+    });
+
+    test("a empresa dona abre o PDF; outra empresa não", async () => {
+      const salvo = await getDoc(doc(empresaA.db, "candidaturas", candidaturaComPdf, "arquivos", "pdf1"));
+      assert.equal(salvo.data()?.conteudo, PDF);
+      await bloqueado(getDoc(doc(empresaB.db, "candidaturas", candidaturaComPdf, "arquivos", "pdf1")));
     });
   });
 

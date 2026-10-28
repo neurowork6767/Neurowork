@@ -9,6 +9,8 @@ export const COLECOES = {
   empresas: "empresas",
   vagas: "vagas",
   candidaturas: "candidaturas",
+  /** Subcoleção de cada candidatura com o conteúdo dos PDFs */
+  arquivos: "arquivos",
 } as const;
 
 export function empresaClient() {

@@ -1,7 +1,10 @@
 import * as yup from "yup";
 
-import { MAX_CERTIFICADOS, MAX_FILE_SIZE, MAX_FILE_SIZE_MB } from "@/lib/constants";
+import { MAX_CERTIFICADOS, MAX_FILE_SIZE, MAX_FILE_SIZE_LABEL } from "@/lib/constants";
 import { onlyDigits } from "@/lib/masks";
+
+/** Dica para quem tem um PDF maior que o limite */
+const COMO_DIMINUIR = 'Para diminuir, salve o PDF de novo escolhendo "Tamanho mínimo" (no Word: Salvar como → PDF).';
 
 const pdfFile = (label: string) =>
   yup
@@ -9,7 +12,7 @@ const pdfFile = (label: string) =>
     .test("tipo", `O ${label} precisa ser um arquivo PDF.`, (file) => !file || file.type === "application/pdf")
     .test(
       "tamanho",
-      `O ${label} pode ter no máximo ${MAX_FILE_SIZE_MB} MB.`,
+      `O ${label} pode ter no máximo ${MAX_FILE_SIZE_LABEL}. ${COMO_DIMINUIR}`,
       (file) => !file || file.size <= MAX_FILE_SIZE
     );
 
@@ -39,7 +42,7 @@ export const candidaturaSchema = yup.object({
         .test("tipo", "Os certificados precisam ser arquivos PDF.", (file) => !file || file.type === "application/pdf")
         .test(
           "tamanho",
-          `Cada certificado pode ter no máximo ${MAX_FILE_SIZE_MB} MB.`,
+          `Cada certificado pode ter no máximo ${MAX_FILE_SIZE_LABEL}. ${COMO_DIMINUIR}`,
           (file) => !file || file.size <= MAX_FILE_SIZE
         )
     )

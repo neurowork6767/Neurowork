@@ -63,7 +63,7 @@ Outros comandos:
 npm run build      # build de produção (também roda lint e checagem de tipos)
 npm run lint       # ESLint
 npm run typecheck  # só a checagem do TypeScript
-npm test           # 14 testes automatizados da camada de serviços
+npm test           # 16 testes automatizados da camada de serviços
 ```
 
 ## Testes automatizados
@@ -72,10 +72,10 @@ Os testes usam o executor de testes nativo do Node.js (`node:test`). O `tsx` per
 
 | Comando | Arquivo | O que testa |
 |---|---|---|
-| `npm test` | `tests/neurowork.test.ts` | 14 testes da camada de serviços no modo demonstração (sem internet) |
-| `npm run test:regras` | `tests/regras-firestore.test.ts` | 14 testes das regras de segurança do banco, no emulador do Firebase (precisa do Java 21 ou mais novo) |
+| `npm test` | `tests/neurowork.test.ts` | 16 testes da camada de serviços no modo demonstração (sem internet) |
+| `npm run test:regras` | `tests/regras-firestore.test.ts` | 18 testes das regras de segurança do banco, no emulador do Firebase (precisa do Java 21 ou mais novo) |
 
-São 14 testes. Os 12 primeiros seguem as linhas da Tabela 1 da monografia, dois por linha; os 2 últimos cobrem o envio do link da vaga pelo WhatsApp e pelo e-mail:
+São 16 testes. Os 12 primeiros seguem as linhas da Tabela 1 da monografia, dois por linha; os outros 4 cobrem os PDFs guardados no banco e o envio do link da vaga pelo WhatsApp e pelo e-mail:
 
 | Grupo | Testes |
 |---|---|
@@ -83,11 +83,12 @@ São 14 testes. Os 12 primeiros seguem as linhas da Tabela 1 da monografia, dois
 | Isolamento entre empresas | Uma empresa não vê, não abre, não altera e não exclui as vagas e as candidaturas de outra |
 | Criação de vaga e link | A vaga aparece pelo link público, sem login; vaga encerrada não recebe candidaturas e volta ao ser reaberta |
 | Candidatura e avaliação adaptada | A candidatura chega à empresa com as respostas e os ajustes compartilhados; o aceite da LGPD é obrigatório e nenhum campo de condição ou diagnóstico é guardado |
-| Certificados, exclusão e backup | Até 5 certificados em PDF de até 5 MB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
+| Certificados, exclusão e backup | Até 5 certificados em PDF de até 700 KB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
 | Banco de perguntas e atalhos | 16 perguntas em 7 categorias, sem termos de saúde; os atalhos só sugerem ajustes que existem |
+| PDFs guardados no banco | A empresa abre o PDF enviado pelo candidato e ele some quando a candidatura é excluída; PDF acima de 700 KB é recusado |
 | Envio do link pelo WhatsApp e e-mail | O número vira o formato do WhatsApp (55 + DDD) e números incompletos são recusados; o e-mail vai para o endereço cadastrado, com assunto e o link da vaga |
 
-Os 14 testes das regras tentam operar direto no banco, como faria alguém que alterasse o código do site: gravar um campo de diagnóstico, enviar sem o aceite da LGPD, candidatar-se a vaga encerrada, mudar o próprio status, ler ou alterar dados de outra empresa, trocar o CNPJ, entre outros. Todas essas tentativas precisam ser recusadas pelo servidor; a candidatura válida e a mudança de status pela empresa precisam ser aceitas.
+Os 18 testes das regras tentam operar direto no banco, como faria alguém que alterasse o código do site: gravar um campo de diagnóstico, enviar sem o aceite da LGPD, candidatar-se a vaga encerrada, mudar o próprio status, ler ou alterar dados de outra empresa, trocar o CNPJ, gravar um PDF que a candidatura não lista ou acima de 700 KB, abrir o PDF de outra empresa, entre outros. Todas essas tentativas precisam ser recusadas pelo servidor; a candidatura válida e a mudança de status pela empresa precisam ser aceitas.
 
 No modo demonstração, cada operação espera de 0,3 a 1,2 segundo para mostrar os estados de carregamento; durante os testes essa espera é pulada.
 
@@ -142,6 +143,7 @@ O diagrama `docs/banco-de-dados-firestore.png` mostra as coleções, os campos e
 | `empresas` | Um por empresa (id = id do usuário) | A própria empresa | A própria empresa (CNPJ e e-mail bloqueados) |
 | `vagas` | Um por vaga, com as etapas e perguntas dentro | Qualquer pessoa, se a vaga estiver aberta; a empresa dona, sempre | Só a empresa dona |
 | `candidaturas` | Uma por candidatura | A empresa da vaga e o próprio candidato | Candidato: respostas até enviar. Empresa: só o status |
+| `candidaturas/{id}/arquivos` | Um por PDF (currículo, portfólio, certificados), com o conteúdo em base64, até 700 KB | A empresa da vaga e o próprio candidato | Candidato: cria junto com a candidatura, só os arquivos que ela lista. Ninguém altera. Apagados junto com a candidatura |
 
 Não há índices compostos para criar: todas as consultas do site usam só filtros de igualdade (por exemplo, `empresaId == ...`), que o Firestore atende com os índices automáticos.
 
@@ -258,11 +260,11 @@ src/
 | RF-03 Cadastro de vagas | Atendido | `/painel/vagas/nova` |
 | RF-04 Processo seletivo personalizado | Atendido | `/painel/vagas/[id]/processo` |
 | RF-05 Link sem cadastro | Atendido | `job-link-card.tsx`, `/vaga/[slug]`, login anônimo; envio do link pelo WhatsApp ou e-mail (`src/lib/mensagens.ts`) |
-| RF-06 Perfil profissional | Parcial | `/vaga/[slug]/candidatura` (os arquivos são validados, mas não enviados) |
+| RF-06 Perfil profissional | Atendido | `/vaga/[slug]/candidatura` (dados, currículo, portfólio e certificados em PDF) |
 | RF-07 Avaliação adaptada | Atendido | `/vaga/[slug]/ajustes` e `/vaga/[slug]/avaliacao` |
-| RF-08 Currículo, certificados e portfólio | Parcial | Campos prontos; falta o armazenamento dos arquivos |
+| RF-08 Currículo, certificados e portfólio | Atendido | PDFs de até 700 KB guardados no Firestore (subcoleção `arquivos`), `src/lib/arquivos.ts` |
 | RF-09 Gestão de candidatos | Atendido | `/painel/candidatos` |
-| RF-10 Avaliação de candidatos | Parcial | `/painel/candidatos/[id]` (respostas sim; abrir arquivos, não) |
+| RF-10 Avaliação de candidatos | Atendido | `/painel/candidatos/[id]` (respostas e botão para abrir cada PDF) |
 | RF-11 Alteração de status | Atendido | `/painel/candidatos/[id]` |
 | RF-12 Relatórios | Atendido | `/painel/relatorios` |
 | RF-13 Painel da empresa | Atendido | `/painel` |
@@ -283,7 +285,7 @@ src/
 
 ## Limitações desta versão
 
-- Os arquivos (currículo/portfólio) são validados, mas **não são enviados**; só o nome e o tamanho ficam registrados. O Firebase Storage exige o plano pago (Blaze) em projetos novos.
+- Os PDFs (currículo, portfólio e certificados) ficam guardados no próprio Firestore, em base64, com **até 700 KB por arquivo**: cada documento do Firestore aceita no máximo 1 MiB, e o Firebase Storage exigiria o plano pago (Blaze). As candidaturas de exemplo não têm PDF, só o nome do arquivo.
 - O pagamento é **simulado**: nenhum dado de cartão é pedido e nada é cobrado. Com pagamento real, o plano deveria ser ativado por um servidor depois da confirmação do pagamento, e não pelo navegador.
 - No modo Firebase, a unicidade do CNPJ não é verificada (exigiria uma função no servidor).
 - O backup é manual (botão no painel). O backup automático do Firestore exige o plano pago.

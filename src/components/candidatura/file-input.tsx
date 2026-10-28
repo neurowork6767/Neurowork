@@ -4,7 +4,7 @@ import * as React from "react";
 import { FileText, Upload, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MAX_FILE_SIZE_MB } from "@/lib/constants";
+import { MAX_FILE_SIZE_LABEL } from "@/lib/constants";
 import { formatFileSize } from "@/lib/utils";
 
 type FileInputProps = {
@@ -56,7 +56,7 @@ export function FileInput({ id, value, onChange, onBlur, ...aria }: FileInputPro
     >
       <Upload className="size-6 text-primary" aria-hidden="true" />
       <span className="font-medium">Escolher arquivo PDF</span>
-      <span className="text-sm text-muted-foreground">Até {MAX_FILE_SIZE_MB} MB</span>
+      <span className="text-sm text-muted-foreground">Até {MAX_FILE_SIZE_LABEL}</span>
       <input
         ref={inputRef}
         id={id}

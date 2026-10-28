@@ -4,7 +4,7 @@ import * as React from "react";
 import { FileText, Plus, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MAX_FILE_SIZE_MB } from "@/lib/constants";
+import { MAX_FILE_SIZE_LABEL } from "@/lib/constants";
 import { formatFileSize } from "@/lib/utils";
 
 type MultiFileInputProps = {
@@ -62,7 +62,7 @@ export function MultiFileInput({ id, value = [], max, onChange, onBlur, ...aria 
           <Plus className="size-5 text-primary" aria-hidden="true" />
           {value.length === 0 ? "Adicionar certificados em PDF" : "Adicionar mais um certificado"}
           <span className="font-normal text-muted-foreground">
-            (até {max}, {MAX_FILE_SIZE_MB} MB cada)
+            (até {max}, {MAX_FILE_SIZE_LABEL} cada)
           </span>
           <input
             ref={inputRef}

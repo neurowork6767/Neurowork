@@ -1,7 +1,25 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+  writeBatch,
+  type DocumentReference,
+} from "firebase/firestore";
 
 import type { Candidatura, CandidaturaStatus, NovaCandidatura, Vaga } from "@/types";
-import { comTituloDaVaga, ServiceError, type CandidaturaComVaga, type CandidaturaDetalhe } from "../shared";
+import {
+  comTituloDaVaga,
+  idsDosArquivos,
+  prepararArquivos,
+  ServiceError,
+  type ArquivoConteudo,
+  type CandidaturaComVaga,
+  type CandidaturaDetalhe,
+} from "../shared";
 import {
   candidatoClient,
   COLECOES,
@@ -54,7 +72,18 @@ export async function alterarStatusCandidatura(id: string, status: CandidaturaSt
   });
 }
 
-/** Exclui a candidatura e todos os dados do candidato (direito de exclusão da LGPD). */
+/** A empresa abre um PDF enviado pelo candidato. */
+export async function obterArquivo(candidaturaId: string, arquivoId: string): Promise<ArquivoConteudo> {
+  return executar(async () => {
+    await requireEmpresaUid();
+    const { db } = empresaClient();
+    const snap = await getDoc(doc(db, COLECOES.candidaturas, candidaturaId, COLECOES.arquivos, arquivoId));
+    if (!snap.exists()) throw new ServiceError("Arquivo não encontrado.");
+    return { nome: String(snap.data().nome), conteudo: String(snap.data().conteudo) };
+  });
+}
+
+/** Exclui a candidatura e todos os dados do candidato, PDFs incluídos (direito de exclusão da LGPD). */
 export async function excluirCandidatura(id: string): Promise<void> {
   return executar(async () => {
     const uid = await requireEmpresaUid();
@@ -62,8 +91,16 @@ export async function excluirCandidatura(id: string): Promise<void> {
     const ref = doc(db, COLECOES.candidaturas, id);
     const snap = await getDoc(ref);
     if (!snap.exists() || snap.data().empresaId !== uid) throw new ServiceError("Candidatura não encontrada.");
-    await deleteDoc(ref);
+    await excluirComArquivos(ref, comId<Candidatura>(snap));
   });
+}
+
+/** Apaga os PDFs e a candidatura de uma vez só: ou tudo é apagado, ou nada. */
+async function excluirComArquivos(ref: DocumentReference, candidatura: Candidatura) {
+  const lote = writeBatch(ref.firestore);
+  for (const arquivoId of idsDosArquivos(candidatura)) lote.delete(doc(ref, COLECOES.arquivos, arquivoId));
+  lote.delete(ref);
+  await lote.commit();
 }
 
 /* ---------- Operações do candidato (login anônimo, sem conta) ---------- */
@@ -73,7 +110,10 @@ export async function excluirMinhaCandidatura(candidaturaId: string): Promise<vo
   return executar(async () => {
     await garantirCandidatoAnonimo();
     const { db } = candidatoClient();
-    await deleteDoc(doc(db, COLECOES.candidaturas, candidaturaId));
+    const ref = doc(db, COLECOES.candidaturas, candidaturaId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) throw new ServiceError("Candidatura não encontrada. Ela pode já ter sido excluída.");
+    await excluirComArquivos(ref, comId<Candidatura>(snap));
   });
 }
 
@@ -87,8 +127,21 @@ export async function enviarCandidatura(vagaId: string, dados: NovaCandidatura):
     if (!vagaSnap.exists()) throw new ServiceError("Esta vaga não está recebendo candidaturas.");
     const vaga = comId<Vaga>(vagaSnap);
 
+    // O id da candidatura e dos PDFs é criado antes, para gravar tudo num único envio
+    const ref = doc(collection(db, COLECOES.candidaturas));
+    const arquivos = prepararArquivos(dados, () => doc(collection(ref, COLECOES.arquivos)).id);
+
     const registro: Omit<Candidatura, "id"> & { candidatoUid: string } = {
-      ...dados,
+      nome: dados.nome,
+      email: dados.email,
+      telefone: dados.telefone,
+      cidade: dados.cidade,
+      curriculo: arquivos.curriculo,
+      portfolio: arquivos.portfolio,
+      certificados: arquivos.certificados,
+      portfolioLink: dados.portfolioLink,
+      adaptacoes: dados.adaptacoes,
+      consentimentoLgpd: dados.consentimentoLgpd,
       vagaId,
       empresaId: vaga.empresaId,
       candidatoUid,
@@ -98,7 +151,18 @@ export async function enviarCandidatura(vagaId: string, dados: NovaCandidatura):
       ajustesCompartilhados: [],
       enviadaEm: new Date().toISOString(),
     };
-    const ref = await addDoc(collection(db, COLECOES.candidaturas), registro);
+    const lote = writeBatch(db);
+    lote.set(ref, registro);
+    for (const arquivo of arquivos.guardados) {
+      lote.set(doc(ref, COLECOES.arquivos, arquivo.id), {
+        nome: arquivo.nome,
+        tipo: arquivo.tipo,
+        tamanho: arquivo.tamanho,
+        conteudo: arquivo.conteudo,
+        enviadoEm: registro.enviadaEm,
+      });
+    }
+    await lote.commit();
     return { ...registro, id: ref.id };
   });
 }

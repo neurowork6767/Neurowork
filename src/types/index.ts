@@ -62,6 +62,17 @@ export type CandidaturaStatus = "nova" | "em_analise" | "aprovado" | "reprovado"
 export type ArquivoInfo = {
   nome: string;
   tamanho: number;
+  /** Id do PDF guardado no banco. Sem id, só o nome e o tamanho foram registrados (dados de exemplo). */
+  id?: string;
+};
+
+export type TipoArquivo = "curriculo" | "portfolio" | "certificado";
+
+/** Arquivo escolhido pelo candidato. O conteúdo do PDF vai em base64 e é guardado à parte da candidatura. */
+export type ArquivoEnviado = {
+  nome: string;
+  tamanho: number;
+  conteudo?: string;
 };
 
 export type Candidatura = {
@@ -110,8 +121,22 @@ export type Sessao = {
 /** Dados enviados pelo candidato ao criar a candidatura (FE17) */
 export type NovaCandidatura = Omit<
   Candidatura,
-  "id" | "vagaId" | "empresaId" | "status" | "respostas" | "avaliacaoConcluida" | "ajustesCompartilhados" | "enviadaEm"
->;
+  | "id"
+  | "vagaId"
+  | "empresaId"
+  | "status"
+  | "respostas"
+  | "avaliacaoConcluida"
+  | "ajustesCompartilhados"
+  | "enviadaEm"
+  | "curriculo"
+  | "portfolio"
+  | "certificados"
+> & {
+  curriculo: ArquivoEnviado;
+  portfolio: ArquivoEnviado | null;
+  certificados: ArquivoEnviado[];
+};
 
 /** Dados do formulário de vaga (FE08) */
 export type VagaInput = Pick<
