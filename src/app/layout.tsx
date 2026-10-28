@@ -1,20 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Roboto } from "next/font/google";
+import localFont from "next/font/local";
 
 import { AccessibilityProvider, accessibilityInitScript } from "@/components/accessibility/accessibility-provider";
 import { Toaster } from "@/components/feedback/toaster";
 import "./globals.css";
 
-// Fontes do Manual de Identidade Visual (baixadas no build e servidas pelo próprio site)
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
+// Fontes do Manual de Identidade Visual, guardadas no próprio projeto (src/app/fonts).
+// Assim o build não depende de baixar as fontes do Google Fonts, o que pode falhar na Vercel.
+// São fontes variáveis com só os pesos usados e os caracteres do português (licença OFL).
+const montserrat = localFont({
+  src: "./fonts/Montserrat-latin.woff",
+  weight: "600 800",
   variable: "--font-montserrat",
   display: "swap",
 });
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
+const roboto = localFont({
+  src: "./fonts/Roboto-latin.woff",
+  weight: "400 700",
   variable: "--font-roboto",
   display: "swap",
 });

@@ -38,7 +38,7 @@ A interface segue o Manual de Identidade Visual do NeuroWork:
 | Cinza claro (superfícies) | `#ECEFF1` |
 | Azul-marinho (menu, títulos, rodapé) | `#0D2A5C` |
 
-Tipografia: **Montserrat** nos títulos e **Roboto** no texto (via `next/font/google`).
+Tipografia: **Montserrat** nos títulos e **Roboto** no texto. Os arquivos das fontes ficam em `src/app/fonts` (licença OFL) e são carregados com `next/font/local`, sem depender do Google Fonts no build.
 
 **Acessibilidade das cores:** o azul `#1E88E5` e o verde `#43A047` têm contraste de 3,7:1 e 3,3:1 com o branco, abaixo dos 4,5:1 exigidos pela WCAG para texto. Por isso, botões, links e textos usam tons mais escuros da mesma família (`#1565C0` e `#2E7D32`), e as cores originais ficam no logotipo, em ícones e em detalhes. Todos os tokens estão em `src/app/globals.css`.
 
