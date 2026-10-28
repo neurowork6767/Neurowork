@@ -12,7 +12,7 @@ import "./ambiente-navegador";
 import assert from "node:assert/strict";
 import { before, beforeEach, describe, test } from "node:test";
 
-import { BANCO_PERGUNTAS, CATEGORIAS_BANCO } from "@/data/banco-perguntas";
+import { BANCO_PERGUNTAS, CATEGORIAS_AREAS, CATEGORIAS_BANCO, CATEGORIAS_GERAIS } from "@/data/banco-perguntas";
 import { DEMO_LOGIN } from "@/data/seed";
 import { AJUSTES, ATALHOS, isAjusteId } from "@/lib/ajustes";
 import { MAX_CERTIFICADOS, MAX_FILE_SIZE } from "@/lib/constants";
@@ -432,11 +432,17 @@ describe("PDFs guardados no banco", () => {
 /* ---------- Tabela 1: Banco de perguntas e atalhos ---------- */
 
 describe("Banco de perguntas e atalhos", () => {
-  test("o banco tem 16 perguntas em 7 categorias, sem termos de saúde", () => {
-    assert.equal(BANCO_PERGUNTAS.length, 16);
-    assert.equal(CATEGORIAS_BANCO.length, 7);
+  test("o banco tem 71 perguntas em 15 categorias, sem termos de saúde", () => {
+    assert.equal(BANCO_PERGUNTAS.length, 71);
+    assert.equal(CATEGORIAS_GERAIS.length, 5, "categorias para qualquer vaga");
+    assert.equal(CATEGORIAS_AREAS.length, 10, "categorias por área de trabalho");
+    assert.equal(CATEGORIAS_BANCO.length, 15);
     assert.deepEqual(new Set(BANCO_PERGUNTAS.map((p) => p.categoria)), new Set(CATEGORIAS_BANCO));
-    assert.equal(new Set(BANCO_PERGUNTAS.map((p) => p.codigo)).size, 16, "códigos sem repetição");
+    assert.equal(new Set(BANCO_PERGUNTAS.map((p) => p.codigo)).size, 71, "códigos sem repetição");
+    for (const categoria of CATEGORIAS_BANCO) {
+      const total = BANCO_PERGUNTAS.filter((p) => p.categoria === categoria).length;
+      assert.ok(total >= 4, `${categoria}: pelo menos 4 perguntas`);
+    }
 
     for (const pergunta of BANCO_PERGUNTAS) {
       assert.ok(pergunta.enunciado.trim(), `${pergunta.codigo}: enunciado vazio`);

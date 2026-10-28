@@ -16,7 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BANCO_PERGUNTAS, CATEGORIAS_BANCO, type CategoriaBanco } from "@/data/banco-perguntas";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
+import { BANCO_PERGUNTAS, CATEGORIAS_AREAS, CATEGORIAS_GERAIS, type CategoriaBanco } from "@/data/banco-perguntas";
 import { cn, createId } from "@/lib/utils";
 import type { Pergunta } from "@/types";
 
@@ -24,13 +27,31 @@ type BancoPerguntasDialogProps = {
   onAdicionar: (perguntas: Pergunta[]) => void;
 };
 
+/** Busca sem diferença entre maiúsculas e acentos ("organizacao" encontra "Organização"). */
+function normalizar(texto: string) {
+  return texto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function quantidade(categoria: CategoriaBanco) {
+  return BANCO_PERGUNTAS.filter((p) => p.categoria === categoria).length;
+}
+
 /** Escolha de perguntas prontas do banco NeuroWork (RF-17). As cópias podem ser editadas depois. */
 export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [categoria, setCategoria] = React.useState<CategoriaBanco | "todas">("todas");
+  const [busca, setBusca] = React.useState("");
   const [selecionadas, setSelecionadas] = React.useState<string[]>([]);
 
-  const lista = BANCO_PERGUNTAS.filter((p) => categoria === "todas" || p.categoria === categoria);
+  const termo = normalizar(busca.trim());
+  const lista = BANCO_PERGUNTAS.filter(
+    (p) =>
+      (categoria === "todas" || p.categoria === categoria) &&
+      (!termo || normalizar(`${p.enunciado} ${p.categoria}`).includes(termo))
+  );
 
   function alternar(codigo: string) {
     setSelecionadas((atual) => (atual.includes(codigo) ? atual.filter((c) => c !== codigo) : [...atual, codigo]));
@@ -55,7 +76,10 @@ export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps)
       open={open}
       onOpenChange={(valor) => {
         setOpen(valor);
-        if (!valor) setSelecionadas([]);
+        if (!valor) {
+          setSelecionadas([]);
+          setBusca("");
+        }
       }}
     >
       <DialogTrigger asChild>
@@ -68,32 +92,63 @@ export function BancoPerguntasDialog({ onAdicionar }: BancoPerguntasDialogProps)
         <DialogHeader>
           <DialogTitle>Banco de perguntas NeuroWork</DialogTitle>
           <DialogDescription>
-            Perguntas em linguagem clara, já com a explicação e um exemplo para o ajuste “passo a passo”. Depois de
-            adicionar, você pode editar o texto.
+            Perguntas em linguagem clara para qualquer vaga e para cada área de trabalho, já com a explicação e um
+            exemplo para o ajuste “passo a passo”. Depois de adicionar, você pode editar o texto.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoria">
-          {(["todas", ...CATEGORIAS_BANCO] as const).map((c) => (
-            <Button
-              key={c}
-              type="button"
-              size="sm"
-              variant={categoria === c ? "default" : "outline"}
-              aria-pressed={categoria === c}
-              onClick={() => setCategoria(c)}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="banco-categoria">Tipo de pergunta</Label>
+            <Select
+              id="banco-categoria"
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value as CategoriaBanco | "todas")}
             >
-              {c === "todas" ? "Todas" : c}
-            </Button>
-          ))}
+              <option value="todas">Todas ({BANCO_PERGUNTAS.length})</option>
+              <optgroup label="Para qualquer vaga">
+                {CATEGORIAS_GERAIS.map((c) => (
+                  <option key={c} value={c}>
+                    {c} ({quantidade(c)})
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Por área de trabalho">
+                {CATEGORIAS_AREAS.map((c) => (
+                  <option key={c} value={c}>
+                    {c} ({quantidade(c)})
+                  </option>
+                ))}
+              </optgroup>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="banco-busca">Buscar</Label>
+            <Input
+              id="banco-busca"
+              type="search"
+              placeholder="Ex.: estoque, cliente, planilha"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+          </div>
         </div>
+        <p className="mt-3 text-sm text-muted-foreground" aria-live="polite">
+          {lista.length === 1 ? "1 pergunta encontrada" : `${lista.length} perguntas encontradas`}
+          {selecionadas.length > 0 && ` · ${selecionadas.length} escolhida${selecionadas.length === 1 ? "" : "s"}`}
+        </p>
 
         {/* min-h-0 deixa a lista encolher e rolar dentro da janela, sem passar por cima dos botões */}
         <div
           role="group"
           aria-label="Perguntas disponíveis"
-          className="-mx-1 mt-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-1"
+          className="-mx-1 mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 pb-1"
         >
+          {lista.length === 0 && (
+            <p className="rounded-lg border border-dashed p-6 text-center text-muted-foreground">
+              Nenhuma pergunta encontrada. Tente outra palavra ou escolha &quot;Todas&quot;.
+            </p>
+          )}
           {lista.map((p) => {
             const id = `banco-${p.codigo}`;
             const marcada = selecionadas.includes(p.codigo);

@@ -84,7 +84,7 @@ São 16 testes. Os 12 primeiros seguem as linhas da Tabela 1 da monografia, dois
 | Criação de vaga e link | A vaga aparece pelo link público, sem login; vaga encerrada não recebe candidaturas e volta ao ser reaberta |
 | Candidatura e avaliação adaptada | A candidatura chega à empresa com as respostas e os ajustes compartilhados; o aceite da LGPD é obrigatório e nenhum campo de condição ou diagnóstico é guardado |
 | Certificados, exclusão e backup | Até 5 certificados em PDF de até 700 KB; a candidatura excluída (pela empresa ou pelo candidato) some, e o backup traz só os dados da empresa |
-| Banco de perguntas e atalhos | 16 perguntas em 7 categorias, sem termos de saúde; os atalhos só sugerem ajustes que existem |
+| Banco de perguntas e atalhos | 71 perguntas em 15 categorias (pelo menos 4 em cada), sem termos de saúde; os atalhos só sugerem ajustes que existem |
 | PDFs guardados no banco | A empresa abre o PDF enviado pelo candidato e ele some quando a candidatura é excluída; PDF acima de 700 KB é recusado |
 | Envio do link pelo WhatsApp e e-mail | O número vira o formato do WhatsApp (55 + DDD) e números incompletos são recusados; o e-mail vai para o endereço cadastrado, com assunto e o link da vaga |
 
@@ -166,7 +166,7 @@ Há um **atalho opcional** (Autismo, TDAH, Dislexia) que só marca ajustes suger
 
 Na montagem do processo seletivo, a empresa pode escrever, em cada pergunta, a explicação direta e um exemplo de resposta usados pelo ajuste "passo a passo".
 
-**Banco de perguntas NeuroWork (RF-17):** a equipe oferece 16 modelos de perguntas, em 7 categorias, já escritos em linguagem clara e literal, com explicação e exemplo. A empresa escolhe quais usar, edita o texto ou cria as próprias perguntas. Os modelos ficam em `src/data/banco-perguntas.ts`.
+**Banco de perguntas NeuroWork (RF-17):** a equipe oferece 71 modelos de perguntas, já escritos em linguagem clara e literal, com explicação e exemplo. São 5 categorias para qualquer vaga (sobre você, comunicação, organização, resolução de problemas e trabalho em equipe) e 10 por área de trabalho (administrativo, atendimento, vendas e comércio, logística e estoque, produção e indústria, alimentação, limpeza e conservação, tecnologia, finanças, marketing e design). Na janela do banco, a empresa filtra pelo tipo de pergunta e busca por palavra. A empresa escolhe quais usar, edita o texto ou cria as próprias perguntas. Os modelos ficam em `src/data/banco-perguntas.ts`.
 
 ## Roteiro de demonstração (fluxo principal)
 
