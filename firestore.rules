@@ -110,6 +110,52 @@ service cloud.firestore {
       // Direito de exclusão (LGPD): a empresa da vaga ou o próprio candidato podem apagar
       allow delete: if ehDono(resource.data.empresaId)
         || (logado() && resource.data.candidatoUid == request.auth.uid);
+
+      // ---------- PDFs da candidatura (currículo, portfólio e certificados) ----------
+      // Cada PDF fica num documento separado, com o conteúdo em base64 (até 700 KB por arquivo).
+      match /arquivos/{arquivoId} {
+        function candidatura() {
+          return get(/databases/$(database)/documents/candidaturas/$(candidaturaId)).data;
+        }
+
+        // Situação da candidatura DEPOIS da gravação: o PDF vai no mesmo envio da candidatura
+        function candidaturaEnviada() {
+          return getAfter(/databases/$(database)/documents/candidaturas/$(candidaturaId)).data;
+        }
+
+        // Só aceita os arquivos que a própria candidatura lista (no máximo 7: currículo, portfólio e 5 certificados)
+        function listado(c) {
+          return c.curriculo.get('id', '') == arquivoId
+            || (c.portfolio != null && c.portfolio.get('id', '') == arquivoId)
+            || (c.certificados.size() > 0 && c.certificados[0].get('id', '') == arquivoId)
+            || (c.certificados.size() > 1 && c.certificados[1].get('id', '') == arquivoId)
+            || (c.certificados.size() > 2 && c.certificados[2].get('id', '') == arquivoId)
+            || (c.certificados.size() > 3 && c.certificados[3].get('id', '') == arquivoId)
+            || (c.certificados.size() > 4 && c.certificados[4].get('id', '') == arquivoId);
+        }
+
+        // A empresa da vaga e o próprio candidato podem abrir
+        allow read: if ehDono(candidatura().empresaId)
+          || (logado() && candidatura().candidatoUid == request.auth.uid);
+
+        allow create: if logado()
+          && candidaturaEnviada().candidatoUid == request.auth.uid
+          && candidaturaEnviada().status == 'nova'
+          && listado(candidaturaEnviada())
+          && request.resource.data.keys().hasOnly(['nome', 'tipo', 'tamanho', 'conteudo', 'enviadoEm'])
+          && request.resource.data.tipo in ['curriculo', 'portfolio', 'certificado']
+          && texto(request.resource.data.nome, 200)
+          && request.resource.data.tamanho is int
+          && request.resource.data.tamanho <= 716800
+          && texto(request.resource.data.conteudo, 960000);
+
+        // O PDF enviado não pode ser trocado
+        allow update: if false;
+
+        // Apagado junto com a candidatura (LGPD)
+        allow delete: if ehDono(candidatura().empresaId)
+          || (logado() && candidatura().candidatoUid == request.auth.uid);
+      }
     }
   }
 }
