@@ -30,7 +30,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { logout, modoDemonstracao, observarSessao, restaurarDadosDeExemplo } from "@/lib/services";
+import { contaDemoAtiva, logout, observarSessao, restaurarDadosDeExemplo } from "@/lib/services";
 import { cn } from "@/lib/utils";
 import type { Sessao } from "@/types";
 import { Logo } from "@/components/brand/logo";
@@ -139,9 +139,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [sessao, setSessao] = React.useState<Sessao | null>(null);
   const [checking, setChecking] = React.useState(true);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  // Lido depois da montagem porque depende do armazenamento do navegador
+  const [usandoDadosDeExemplo, setUsandoDadosDeExemplo] = React.useState(false);
 
   // Proteção de rota: sem empresa logada, volta para o login
   React.useEffect(() => {
+    setUsandoDadosDeExemplo(contaDemoAtiva());
     return observarSessao((atual) => {
       if (!atual) {
         router.replace("/login");
@@ -178,7 +181,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <nav aria-label="Seções do painel" className="flex-1 p-3 pt-5">
           <NavLinks tone="dark" />
         </nav>
-        <div className="border-t border-white/15 p-3">{modoDemonstracao && <ResetDataButton tone="dark" />}</div>
+        <div className="border-t border-white/15 p-3">{usandoDadosDeExemplo && <ResetDataButton tone="dark" />}</div>
       </aside>
 
       <div className="flex min-w-0 flex-col">
@@ -199,7 +202,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 <nav aria-label="Seções do painel" className="flex-1">
                   <NavLinks onNavigate={() => setMenuOpen(false)} />
                 </nav>
-                {modoDemonstracao && <ResetDataButton />}
+                {usandoDadosDeExemplo && <ResetDataButton />}
               </DialogContent>
             </Dialog>
             <div className="lg:hidden">
