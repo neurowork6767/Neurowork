@@ -15,8 +15,8 @@ type MockDatabase = {
   candidaturas: Candidatura[];
 };
 
-// A versão muda quando o formato dos dados muda; dados de versões antigas são descartados
-const DB_KEY = "neurowork:db:v3";
+// A versão muda quando o formato ou os dados de exemplo mudam; dados de versões antigas são descartados
+const DB_KEY = "neurowork:db:v4";
 const SESSION_KEY = "neurowork:sessao";
 
 function seed(): MockDatabase {
