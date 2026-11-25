@@ -35,6 +35,14 @@ const SECOES = [
     ],
   },
   {
+    titulo: "Cookies e armazenamento do navegador",
+    itens: [
+      "Toda vez que você entra no site, um aviso pergunta se aceita os cookies. A resposta vale até você fechar o navegador.",
+      "Usamos só cookies e armazenamento essenciais: manter a empresa conectada, guardar as preferências de acessibilidade e salvar o progresso da candidatura.",
+      "Não usamos cookies de publicidade nem de rastreamento.",
+    ],
+  },
+  {
     titulo: "Seus direitos (LGPD, art. 18)",
     itens: [
       "Saber quais dados seus estão guardados.",
