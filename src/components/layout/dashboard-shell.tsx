@@ -42,9 +42,9 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/painel", label: "Início", icon: LayoutDashboard },
   { href: "/painel/vagas", label: "Vagas", icon: Briefcase },
   { href: "/painel/candidatos", label: "Candidatos", icon: Users },
-  { href: "/painel/plano", label: "Plano", icon: CreditCard },
   { href: "/painel/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/painel/empresa", label: "Minha empresa", icon: Building2 },
+  { href: "/painel/plano", label: "Plano", icon: CreditCard },
 ];
 
 function isActive(pathname: string, href: string) {
