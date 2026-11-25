@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 
 import { AccessibilityProvider, accessibilityInitScript } from "@/components/accessibility/accessibility-provider";
+import { CookieBanner } from "@/components/feedback/cookie-banner";
 import { Toaster } from "@/components/feedback/toaster";
 import "./globals.css";
 
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <AccessibilityProvider>
           {children}
           <Toaster />
+          <CookieBanner />
         </AccessibilityProvider>
       </body>
     </html>
